@@ -1,3 +1,4 @@
+require('dotenv').config()
 const express = require('express') ;
 const {restrictToLoggedInUserOnly} = require('./middleware/customerAuth')
 const {connectMongo} = require('./Connection/Connection') ;
@@ -11,12 +12,12 @@ const cors = require('cors');
 const registerSocketHandlers = require('./socket/socketHandler');
 
 const app = express() ;
-const port = 8080 ;
+const port = process.env.PROT || 8080 ;
 
 const server = http.createServer(app);
 
 app.use(cors({
-  origin: 'http://localhost:5173', // Your React/Vite frontend
+  origin: process.env.FRONTEND_URL, // Your React/Vite frontend
   methods: ['GET', 'POST'],
 }));
 
@@ -26,11 +27,11 @@ app.use(express.urlencoded({extended:true}));
 app.use(express.json()) ;
 app.use(cookieParser()) ;
 
-connectMongo('mongodb://127.0.0.1:27017/salondatabase').then(()=>console.log(`MongoDB connected`)) ;
+connectMongo(process.env.MONGO_URL).then(()=>console.log(`MongoDB connected`)) ;
 
 const io = new Server(server, {
   cors: {
-    origin: 'http://localhost:5173',
+    origin: process.env.FRONTEND_URL,
     methods: ['GET', 'POST']
   }
 });
