@@ -2,6 +2,7 @@ const Customer = require('../models/CustomerModel') ;
 const Salon = require('../models/SalonModel') ;
 const Booking = require('../models/BookingModel')
 const { setCustomer  } = require('../jwtMapping/CustomerMapping') ;
+const generateTimeSlots = require('../utils/generateTimeSlots');
 // const {matchPassword} = require('../models/CustomerModel')
 
 async function signuppage(req , res){
@@ -38,7 +39,7 @@ async function loginpage(req, res) {
     res.status(200).json({
       message: "Login successful",
       token,
-      user: { name: customer.name, email: customer.email , _id:customer._id }
+      customer: { name: customer.name, email: customer.email , _id:customer._id }
     });
   } catch (err) {
     res.status(400).json({ message: "user error", error: err.message });
@@ -89,10 +90,57 @@ async function myBooking(req,res){
   }
 }
 
+async function slots (req, res){
+  try {
+    const { salonId, serviceName, date } = req.query; // date in YYYY-MM-DD
+
+    const salon = await Salon.findById(salonId);
+    if (!salon) return res.status(404).json({ message: "Salon not found" });
+
+    // Find service duration
+    const service = salon.services.find(s => s.serviceName === serviceName);
+    if (!service) return res.status(400).json({ message: "Service not found in salon" });
+
+    const duration = service.duration;
+
+    // Generate all possible time slots (hardcoded open/close for now)
+    const allSlots = generateTimeSlots("09:00", "18:00", duration);
+
+    // Get all bookings on the same date
+    const startOfDay = new Date(date + "T00:00:00");
+    const endOfDay = new Date(date + "T23:59:59");
+
+    const bookings = await Booking.find({
+      salonId,
+      appointmentDate: { $gte: startOfDay, $lte: endOfDay },
+    });
+
+    // Convert booked times to a Set
+    const bookedSet = new Set(bookings.map(booking => {
+      const time = new Date(booking.appointmentDate).toTimeString().slice(0,5); // e.g., "10:30"
+      const end = new Date(new Date(booking.appointmentDate).getTime() + duration * 60000);
+      const endTime = end.toTimeString().slice(0,5);
+      return `${time}-${endTime}`;
+    }));
+
+    // Filter available
+    const availableSlots = allSlots.filter(slot => {
+      return !bookedSet.has(`${slot.start}-${slot.end}`);
+    });
+
+    res.json({ availableSlots });
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Server error", error: err.message });
+  }
+}
+
 module.exports = {
     signuppage,
     loginpage,
     getAllSalons,
     newBooking,
     myBooking,
+    slots
 }
