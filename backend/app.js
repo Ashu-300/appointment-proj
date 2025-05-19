@@ -1,6 +1,7 @@
 require('dotenv').config()
 const express = require('express') ;
-const {restrictToLoggedInUserOnly} = require('./middleware/customerAuth')
+const {restrictToLoggedInCustomerOnly} = require('./middleware/customerAuth')
+const {restrictToLoggedInSalonOnly} = require('./middleware/salonAuth')
 const {connectMongo} = require('./Connection/Connection') ;
 const customerRouter = require('./routes/CustomerRoutes') ;
 const salonRouter = require('./routes/SalonRoutes');
@@ -17,7 +18,7 @@ const port = process.env.PROT || 8080 ;
 const server = http.createServer(app);
 
 app.use(cors({
-  origin: process.env.FRONTEND_URL, // Your React/Vite frontend
+  origin: process.env.FRONTEND_URL, 
   methods: ['GET', 'POST'],
 }));
 
@@ -38,7 +39,7 @@ const io = new Server(server, {
 registerSocketHandlers(io);
 
 
-app.use('/customer' , restrictToLoggedInUserOnly , customerRouter ) ;
-app.use('/salon' , salonRouter ) ;
+app.use('/customer' , restrictToLoggedInCustomerOnly , customerRouter ) ;
+app.use('/salon' ,restrictToLoggedInSalonOnly , salonRouter ) ;
 
 server.listen(port ,()=> {console.log(`server started at port ${port} `)} ) ;

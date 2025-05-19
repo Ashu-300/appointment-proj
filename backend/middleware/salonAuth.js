@@ -1,7 +1,7 @@
-const {getCustomer } = require('../jwtMapping/CustomerMapping'); 
+const {getSalon } = require('../jwtMapping/SalonMapping'); 
 
 
-async function restrictToLoggedInCustomerOnly(req, res, next) {
+async function restrictToLoggedInSalonOnly(req, res, next) {
     if (req.path === '/login') {
         return next();  // ✅ allow login page access without auth
     }
@@ -18,9 +18,9 @@ async function restrictToLoggedInCustomerOnly(req, res, next) {
     
     const userUid = req.headers['authorization'];
     
-    if (!userUid) return res.redirect('customer/login')
+    if (!userUid) return res.redirect('salon/login')
     const token = userUid.split('Bearer ')[1] ;
-    const user = await getCustomer(token) ;
+    const user = await getSalon(token) ;
     // @ts-ignore
     if (!user) return res.redirect('/login');
     req.user = user;
@@ -28,5 +28,5 @@ async function restrictToLoggedInCustomerOnly(req, res, next) {
     next(); 
 }
 module.exports = {
-    restrictToLoggedInCustomerOnly,
+    restrictToLoggedInSalonOnly,
 }

@@ -1,4 +1,5 @@
 const Salon = require('../models/SalonModel') ;
+const Booking = require('../models/BookingModel')
 const {setSalon} = require('../jwtMapping/SalonMapping') ;
 async function signup(req , res){
     const body = req.body ;
@@ -30,7 +31,7 @@ async function loginpage(req, res) {
     res.status(200).json({
       message: "Login successful",
       token,
-      user: { salonName: salon.salonName, email: salon.email }
+      user: { salonName: salon.salonName, email: salon.email , _id:salon._id }
     });
   } catch (err) {
     res.status(500).json({ message: "Server error", error: err.message });
@@ -39,8 +40,10 @@ async function loginpage(req, res) {
 
 async function allBookings(req , res){
   try {
-    const salon = await Salon.findOne({email:email});
-    res.status(200).json(salon.bookings);
+    const {salonId} = req.body
+    const bookings = await Booking.find({salonId:salonId})
+      
+    res.status(200).json(bookings);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

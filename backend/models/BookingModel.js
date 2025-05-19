@@ -1,8 +1,8 @@
 const { default: mongoose } = require("mongoose");
 
 const BookingSchema = new mongoose.Schema({
-  customer: { type: mongoose.Schema.Types.ObjectId, ref: 'Customer' },
-  salon: { type: mongoose.Schema.Types.ObjectId, ref: 'Salon' },
+  customerId: { type: mongoose.Schema.Types.ObjectId, ref: 'Customer' },
+  salonId: { type: mongoose.Schema.Types.ObjectId, ref: 'Salon' },
   service: String,
   appointmentDate: Date,
   status: { type: String, enum: ['pending', 'confirmed', 'completed', 'cancelled'], default: 'pending' },

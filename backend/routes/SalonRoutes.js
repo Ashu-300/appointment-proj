@@ -6,4 +6,5 @@ router.get('/' , allBookings) ;
 router.post('/signup/submit' , signup) ;
 router.post('/login/submit' , loginpage) ;
 
+
 module.exports = router ;
