@@ -76,13 +76,20 @@ const anotherBooking = await Booking.create({
   appointmentDate
 });
 
+customer.bookings.push(anotherBooking);
+await customer.save();
+
+salon.bookings.push(anotherBooking);
+await salon.save();
+
 res.status(201).json(anotherBooking);
 }
 
 async function myBooking(req,res){
    try {
-    const {customerId} = req.body
-    const bookings = await Booking.findOne({customerId:customerId})
+    const {customerEmail} = req.body
+    const customer = await Customer.findOne({email:customerEmail})
+    const bookings = await Booking.find({_id:customer.bookings})
       
     res.status(200).json(bookings);
   } catch (error) {

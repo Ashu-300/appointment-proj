@@ -40,8 +40,10 @@ async function loginpage(req, res) {
 
 async function allBookings(req , res){
   try {
-    const {salonId} = req.body
-    const bookings = await Booking.find({salonId:salonId})
+    const {salonEmail} = req.body
+    const salon = await Salon.findOne({email:salonEmail})
+    const bookings = await Booking.find({_id:salon.bookings})
+
       
     res.status(200).json(bookings);
   } catch (error) {
