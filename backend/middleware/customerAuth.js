@@ -1,32 +1,34 @@
-const {getCustomer } = require('../jwtMapping/CustomerMapping'); 
-
+const { getCustomer } = require('../jwtMapping/CustomerMapping');
 
 async function restrictToLoggedInCustomerOnly(req, res, next) {
-    if (req.path === '/login') {
-        return next();  // ✅ allow login page access without auth
+  // Allow unauthenticated access to login/signup routes
+  const publicPaths = ['/login', '/login/submit', '/signup', '/signup/submit'];
+  if (publicPaths.includes(req.path)) {
+    return next();
+  }
+
+  const authHeader = req.headers['authorization'];
+
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return res.status(401).json({ error: 'Unauthorized: No token provided' });
+  }
+
+  const token = authHeader.split('Bearer ')[1];
+
+  try {
+    const user = await getCustomer(token);
+    if (!user) {
+      return res.status(401).json({ error: 'Unauthorized: Invalid token' });
     }
-    if (req.path === '/login/submit') {
-        return next();  // ✅ allow login page access without auth
-    }
-     if (req.path === '/signup') {
-        return next();  // ✅ allow login page access without auth
-    }
-    if (req.path === '/signup/submit') {
-        return next();  // ✅ allow login page access without auth
-    }
-    
-    
-    const userUid = req.headers['authorization'];
-    
-    if (!userUid) return res.redirect('customer/login')
-    const token = userUid.split('Bearer ')[1] ;
-    const user = await getCustomer(token) ;
-    // @ts-ignore
-    if (!user) return res.redirect('/login');
+
     req.user = user;
-    
-    next(); 
+    next();
+  } catch (error) {
+    console.error('Error verifying token:', error.message);
+    return res.status(401).json({ error: 'Unauthorized: Token verification failed' });
+  }
 }
+
 module.exports = {
-    restrictToLoggedInCustomerOnly,
-}
+  restrictToLoggedInCustomerOnly,
+};

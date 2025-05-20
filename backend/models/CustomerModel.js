@@ -20,7 +20,9 @@ CustomerSchema.pre('save' , function (next){
 })
 
 CustomerSchema.static('matchPassword' , async function(email , password){
-  const customer = await this.findOne({email}) ;
+  const customer = await this.findOne({email:email}) ;
+
+  
   
   
   if(!customer) throw new Error('customer does not found'); 

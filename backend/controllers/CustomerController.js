@@ -49,6 +49,7 @@ async function loginpage(req, res) {
 async function getAllSalons(req , res){
  try {
     const salons = await Salon.find();
+    
     res.status(200).json(salons);
   } catch (error) {
     res.status(500).json({ error: error.message });

@@ -39,7 +39,7 @@ const io = new Server(server, {
 registerSocketHandlers(io);
 
 
-app.use('/customer'  , customerRouter ) ;
-app.use('/salon'  , salonRouter ) ;
+app.use('/customer' , restrictToLoggedInCustomerOnly , customerRouter ) ;
+app.use('/salon'  , restrictToLoggedInSalonOnly , salonRouter ) ;
 
 server.listen(port ,()=> {console.log(`server started at port ${port} `)} ) ;
