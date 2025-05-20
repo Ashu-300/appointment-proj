@@ -70,8 +70,8 @@ if (!customer || !salon) {
 
 // Create booking
 const anotherBooking = await Booking.create({
-  customer: customer._id,
-  salon: salon._id,
+  customerId: customer._id,
+  salonId: salon._id,
   service,
   appointmentDate
 });
@@ -82,7 +82,7 @@ res.status(201).json(anotherBooking);
 async function myBooking(req,res){
    try {
     const {customerId} = req.body
-    const bookings = await Booking.find({customerId:customerId})
+    const bookings = await Booking.findOne({customerId:customerId})
       
     res.status(200).json(bookings);
   } catch (error) {
