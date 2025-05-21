@@ -42,10 +42,7 @@ CustomerSchema.static('matchPassword' , async function(email , password){
   if(hashedPassword !== customerProvidedPassword) throw new Error('password does not match');
 
 
-  console.log('Salt from DB:', salt);
-console.log('Password from DB:', hashedPassword);
-console.log('User provided password:', password);
-console.log('Recomputed hash:', customerProvidedPassword);
+
 
 
    const customerObj = customer.toObject();

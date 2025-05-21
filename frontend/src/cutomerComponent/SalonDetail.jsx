@@ -25,6 +25,7 @@ const SalonDetail = ({salon}) => {
           }
         });
        
+        console.log("hello");
         
         setBookings(response.data);
       } catch (err) {
@@ -45,7 +46,7 @@ const SalonDetail = ({salon}) => {
       customerEmail: customer.email,
       salonEmail: salon.email,
       service: service.serviceName, // Just the service name as a string
-      appointmentDate: "2025-05-20T08:48:59.248Z" // Replace with dynamic date later
+      appointmentDate: Date.now() // Replace with dynamic date later
     };
 
     
@@ -61,8 +62,9 @@ const SalonDetail = ({salon}) => {
       } 
     );
 
+    setBookings(prev => [...prev, res.data]);
+
     alert(`Booking successful for: ${service.serviceName}`);
-    // setBookings([...,res])
   } catch (error) {
     console.error('Booking failed:', error.response?.data || error.message);
     alert('Failed to book the service. Please try again.');
@@ -93,7 +95,7 @@ const SalonDetail = ({salon}) => {
           ))}
         </div>
 
-        <h2 className="text-2xl font-semibold text-gray-800 mt-10 mb-4">Current Bookings</h2>
+        <h2 className="text-2xl font-semibold text-gray-800 mt-10 mb-4">Your Bookings</h2>
         {error && <p className="text-red-600">{error}</p>}
         {bookings.length === 0 ? (
             <p className="text-gray-500 italic">No bookings yet.</p>

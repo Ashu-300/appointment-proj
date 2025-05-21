@@ -1,10 +1,10 @@
 const jwt = require('jsonwebtoken') ;
-const secret = "1234@" ;
+require('dotenv').config()
 function setCustomer(customer){
     return jwt.sign({
         _id: customer._id,
         email : customer.email
-    } , secret ) ;
+    } , process.env.Secret ) ;
 }
 function getCustomer(token){
     if(!token) return null ;

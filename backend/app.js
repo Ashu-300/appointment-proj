@@ -13,7 +13,7 @@ const cors = require('cors');
 const registerSocketHandlers = require('./socket/socketHandler');
 
 const app = express() ;
-const port = process.env.PROT || 8080 ;
+const port = process.env.PORT || 8000 ;
 
 const server = http.createServer(app);
 

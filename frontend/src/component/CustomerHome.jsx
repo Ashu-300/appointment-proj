@@ -68,8 +68,9 @@ const CustomerHome = () => {
       <main className="flex-grow p-6 bg-gray-50">
         <h2 className="text-2xl font-bold mb-6 text-center">Salons Near You</h2>
         {salons.map((salon)=>(
-          <div key={salon._id}>
-            <button onClick={()=>opensalon(salon)}>
+          <div className='h-full w-full flex flex-wrap' key={salon._id}>
+            <button className=' h-[15rem] w-[25rem]  ' 
+            onClick={()=>opensalon(salon)}>
             <SalonList salon={salon} />
             </button>
           </div>
