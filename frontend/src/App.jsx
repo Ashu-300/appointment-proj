@@ -1,12 +1,13 @@
 import React from 'react'
 import { Route, Routes } from 'react-router-dom'
 import LandingPage from './landingComponent/LandingPage'
-import CustomerHome from './cutomerComponent/CustomerHome'
-import CustomerSignUp from './cutomerComponent/CustomerSignUp'
-import CustomerLogIn from './cutomerComponent/CustomerLogIn'
-import SalonHome from './salonComponent/SalonHome'
-import SalonSignUp from './salonComponent/SalonSignUp'
-import SalonLogIn from './salonComponent/SalonLogIn'
+import CustomerHome from './component/CustomerHome'
+import CustomerSignUp from './component/CustomerSignUp'
+import CustomerLogIn from './component/CustomerLogIn'
+import SalonHome from './component/SalonHome'
+import SalonSignUp from './component/SalonSignUp'
+import SalonLogIn from './component/SalonLogIn'
+import CustomerSalonDeatil from './component/CustomerSalonDeatil'
 
 
 
@@ -19,6 +20,7 @@ const App = () => {
     <Routes>
       <Route path='/' element={<LandingPage/>} />
       <Route path='/customer' element={<CustomerHome/>} />
+       <Route path='/customer/:name' element={<CustomerSalonDeatil/>} />
       <Route path='/customer/signup' element={<CustomerSignUp/>} />
       <Route path='/customer/login' element={<CustomerLogIn/>} />
       <Route path='/salon' element={<SalonHome/>} />

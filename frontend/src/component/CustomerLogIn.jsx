@@ -1,12 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
+import { login, logout } from '../redux/slices/CustomerSlice';
 
 const CustomerLogIn = () => {
    const [credentials, setCredentials] = useState({
     email: '',
     password: ''
   });
+
+  const dispatch = useDispatch();
+  
+
 
   const [error, seterror] = useState('');
   const [success, setsuccess] = useState('');
@@ -15,10 +21,13 @@ const CustomerLogIn = () => {
   // Auto-login if token exists
   useEffect(() => {
     const token = localStorage.getItem('customerToken');
-    const customer = localStorage.getItem('customerInfo');
+    const customer = JSON.parse(localStorage.getItem('customerInfo'))
 
     if (token && customer) {
       navigate('/customer'); // redirect if already logged in
+    }
+    if (!token || !customer) {
+      dispatch(logout()); // Force reset Redux store
     }
   }, [navigate]);
 
@@ -35,18 +44,23 @@ const CustomerLogIn = () => {
     setsuccess('');
 
     try {
+      
       const res = await axios.post('http://localhost:8080/customer/login/submit', credentials); // adjust endpoint if needed
       const { token, customer } = res.data;
-      console.log(res.data);
+
+      console.log(customer);
       
+     
+      dispatch(login(customer));
 
       // ✅ Save token and customer info
       localStorage.setItem('customerToken', token);
       localStorage.setItem('customerInfo', JSON.stringify(customer));
 
+      
       setsuccess('Login successful!');
       setCredentials({ email: '', password: '' });
-
+      
       // ✅ Redirect to dashboard
       navigate('/customer');
     } catch (err) {

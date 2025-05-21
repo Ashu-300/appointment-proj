@@ -1,9 +1,9 @@
 import React from 'react';
 
-const SalonList = ({ salons }) => {
+const SalonList = ({ salon }) => {
   return (
     <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-      {salons.map((salon) => (
+      {
         <div key={salon._id} className="bg-white p-4 shadow-lg rounded-xl">
           <h3 className="text-xl font-semibold mb-2">{salon.salonName}</h3>
           <p className="text-gray-600">{salon.address}</p>
@@ -20,7 +20,7 @@ const SalonList = ({ salons }) => {
             </ul>
           </div>
         </div>
-      ))}
+      }
     </div>
   );
 };

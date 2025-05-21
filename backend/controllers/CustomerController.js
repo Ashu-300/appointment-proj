@@ -26,11 +26,14 @@ async function loginpage(req, res) {
   const { email, password } = req.body;
  
   try {
+  
+    
     const customer = await Customer.matchPassword(email, password);
+   
     if (!customer) {
       return res.status(401).json({ message: "Invalid email or password" });
     }
-   
+  
     
     const token = setCustomer(customer); 
     
@@ -88,8 +91,8 @@ res.status(201).json(anotherBooking);
 
 async function myBooking(req,res){
    try {
-    const {customerEmail} = req.body
-    const customer = await Customer.findOne({email:customerEmail})
+    const {email} = req.params
+    const customer = await Customer.findOne({email:email})
     const bookings = await Booking.find({_id:customer.bookings})
       
     res.status(200).json(bookings);
