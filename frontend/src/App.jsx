@@ -4,14 +4,9 @@ import LandingPage from './landingComponent/LandingPage'
 import CustomerHome from './cutomerComponent/CustomerHome'
 import CustomerSignUp from './cutomerComponent/CustomerSignUp'
 import CustomerLogIn from './cutomerComponent/CustomerLogIn'
-import SalonHome from './salonComponent/SalonHome'
-import SalonSignUp from './salonComponent/SalonSignUp'
-import SalonLogIn from './salonComponent/SalonLogIn'
-
-
-
-
-
+import SalonHome from './salonPages/SalonHome'
+import SalonSignUp from './salonPages/SalonSignUp'
+import SalonLogIn from './salonPages/SalonLogIn'
 
 const App = () => {
   return (
@@ -23,11 +18,8 @@ const App = () => {
       <Route path='/customer/login' element={<CustomerLogIn/>} />
       <Route path='/salon' element={<SalonHome/>} />
       <Route path='/salon/signup' element={<SalonSignUp/>} />
-      <Route path='/salon/login' element={<SalonLogIn/>} />
-    
-      
-    </Routes>
-      
+      <Route path='/salon/login' element={<SalonLogIn/>} />  
+    </Routes>  
     </>
   )
 }

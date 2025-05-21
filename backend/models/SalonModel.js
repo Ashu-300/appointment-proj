@@ -3,7 +3,8 @@ const {createHmac , randomBytes} = require('crypto') ;
 
 
 const SalonSchema = new mongoose.Schema({
-  salonName:  {type:String , required: true},
+  salonName:
+    {type:String , required: true},
   ownerName:  {type:String , required: true},
   email: { type: String },
   password:{type:String , required: true},
@@ -15,8 +16,7 @@ const SalonSchema = new mongoose.Schema({
   services: [
     {
       serviceName: {type:String , required: true},       // e.g., "Haircut"
-      price: {type:String , required: true},                // e.g., 299
-      duration: {type:Number , required: true},             // in minutes, e.g., 30
+      price: {type:String },                // e.g., 
     }
   ],
 
