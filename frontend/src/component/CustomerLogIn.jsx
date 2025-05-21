@@ -1,24 +1,33 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
+import { login, logout } from '../redux/slices/CustomerSlice';
 
 const CustomerLogIn = () => {
    const [credentials, setCredentials] = useState({
-    phone: '',
+    email: '',
     password: ''
   });
 
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
+  const dispatch = useDispatch();
+  
+
+
+  const [error, seterror] = useState('');
+  const [success, setsuccess] = useState('');
   const navigate = useNavigate();
 
   // Auto-login if token exists
   useEffect(() => {
     const token = localStorage.getItem('customerToken');
-    const customer = localStorage.getItem('customerInfo');
+    const customer = JSON.parse(localStorage.getItem('customerInfo'))
 
     if (token && customer) {
-      navigate('/customer/dashboard'); // redirect if already logged in
+      navigate('/customer'); // redirect if already logged in
+    }
+    if (!token || !customer) {
+      dispatch(logout()); // Force reset Redux store
     }
   }, [navigate]);
 
@@ -31,26 +40,36 @@ const CustomerLogIn = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
-    setSuccess('');
+    seterror('');
+    setsuccess('');
 
     try {
+      
       const res = await axios.post('http://localhost:8080/customer/login/submit', credentials); // adjust endpoint if needed
       const { token, customer } = res.data;
+
+      console.log(customer);
+      
+     
+      dispatch(login(customer));
 
       // ✅ Save token and customer info
       localStorage.setItem('customerToken', token);
       localStorage.setItem('customerInfo', JSON.stringify(customer));
 
-      setSuccess('Login successful!');
-      setCredentials({ phone: '', password: '' });
-
+      
+      setsuccess('Login successful!');
+      setCredentials({ email: '', password: '' });
+      
       // ✅ Redirect to dashboard
       navigate('/customer');
     } catch (err) {
-      setError(err.response?.data?.message || 'Login failed.');
+      seterror(err.response?.data?.message || 'Login failed.');
     }
   };
+  const handleSignUp = async(e)=>{
+     navigate('/customer/signup');
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
@@ -62,15 +81,15 @@ const CustomerLogIn = () => {
 
         <form onSubmit={handleSubmit} className="space-y-5">
           <div>
-            <label className="block text-sm font-medium text-gray-700">Phone Number</label>
+            <label className="block text-sm font-medium text-gray-700">Email</label>
             <input
-              type="tel"
-              name="phone"
-              value={credentials.phone}
+              type="text"
+              name="email"
+              value={credentials.email}
               onChange={handleChange}
               required
               className="mt-1 w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="9876543210"
+              placeholder="example@gmail.com"
             />
           </div>
 
@@ -92,6 +111,13 @@ const CustomerLogIn = () => {
             className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 rounded-lg transition duration-300"
           >
             Log In
+          </button>
+           <button
+           onClick={handleSignUp}
+            type="submit"
+            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 rounded-lg transition duration-300"
+          >
+            Sign In
           </button>
         </form>
       </div>

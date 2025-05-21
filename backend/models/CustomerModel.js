@@ -10,17 +10,27 @@ const CustomerSchema = new mongoose.Schema({
   bookings: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Booking' }]
 });
 
-CustomerSchema.pre('save' , function (next){
-  const customer = this ;
-  const salt = randomBytes(16).toString() ;
-  const hashedPassword = createHmac('sha256' , salt).update(customer.password).digest('hex') ;
-  this.salt = salt ;
-  this.password = hashedPassword ;
-  next()
-})
+CustomerSchema.pre('save', function (next) {
+  const customer = this;
+
+  // Only run if password field is modified or new
+  if (!customer.isModified('password')) return next();
+
+  const salt = randomBytes(16).toString('hex');  // added .toString('hex') for consistency
+  const hashedPassword = createHmac('sha256', salt).update(customer.password).digest('hex');
+  
+  customer.salt = salt;
+  customer.password = hashedPassword;
+  
+  next();
+});
+
 
 CustomerSchema.static('matchPassword' , async function(email , password){
-  const customer = await this.findOne({email}) ;
+  const customer = await this.findOne({email:email}) ;
+
+  
+
   
   
   if(!customer) throw new Error('customer does not found'); 
@@ -30,6 +40,13 @@ CustomerSchema.static('matchPassword' , async function(email , password){
   const customerProvidedPassword = createHmac('sha256' ,salt).update(password).digest('hex') ;
 
   if(hashedPassword !== customerProvidedPassword) throw new Error('password does not match');
+
+
+  console.log('Salt from DB:', salt);
+console.log('Password from DB:', hashedPassword);
+console.log('User provided password:', password);
+console.log('Recomputed hash:', customerProvidedPassword);
+
 
    const customerObj = customer.toObject();
   delete customerObj.password;

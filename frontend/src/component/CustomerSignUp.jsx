@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 const CustomerSignUp = () => {
+  const navigate = useNavigate()
    const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -29,6 +31,7 @@ const CustomerSignUp = () => {
       const response = await axios.post('http://localhost:8080/customer/signup/submit', formData); // Adjust route accordingly
       setSuccess('Account created successfully!');
       setFormData({ name: '', email: '', password: '', phone: '' });
+      navigate('/customer/login')
     } catch (err) {
       setError(err.response?.data?.message || 'Signup failed.');
     }

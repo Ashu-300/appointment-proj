@@ -39,6 +39,8 @@ const io = new Server(server, {
 registerSocketHandlers(io);
 
 
+app.use('/customer' , restrictToLoggedInCustomerOnly , customerRouter ) ;
+app.use('/salon'  , restrictToLoggedInSalonOnly , salonRouter ) ;
 app.use('/customer', customerRouter ) ;
 app.use('/salon', salonRouter ) ;
 

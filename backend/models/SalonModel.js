@@ -22,14 +22,21 @@ const SalonSchema = new mongoose.Schema({
 
   bookings: [{ type: mongoose.Schema.Types.ObjectId , ref: 'Booking' }]
 });
-SalonSchema.pre('save' , function (next){
-  const salon = this ;
-  const salt = randomBytes(16).toString() ;
-  const hashedPassword = createHmac('sha256' , salt).update(salon.password).digest('hex') ;
-  this.salt = salt ;
-  this.password = hashedPassword ;
-  next()
-})
+SalonSchema.pre('save', function (next) {
+  const salon = this;
+
+  // Only hash password if it is new or modified
+  if (!salon.isModified('password')) return next();
+
+  const salt = randomBytes(16).toString('hex');  // hex string salt
+  const hashedPassword = createHmac('sha256', salt).update(salon.password).digest('hex');
+
+  salon.salt = salt;
+  salon.password = hashedPassword;
+
+  next();
+});
+
 
 SalonSchema.static('matchPassword' , async function(email , password){
   const salon = await this.findOne({email}) ;

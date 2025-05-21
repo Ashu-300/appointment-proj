@@ -1,32 +1,35 @@
-const {getSalon } = require('../jwtMapping/SalonMapping'); 
-
+const { getSalon } = require('../jwtMapping/SalonMapping');
 
 async function restrictToLoggedInSalonOnly(req, res, next) {
-    if (req.path === '/login') {
-        return next();  // ✅ allow login page access without auth
+  // Public routes that don't need authentication
+  const publicPaths = ['/login', '/login/submit', '/signup', '/signup/submit'];
+  if (publicPaths.includes(req.path)) {
+    return next();
+  }
+
+  const authHeader = req.headers['authorization'];
+
+  // Check if token exists and is properly formatted
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return res.status(401).json({ error: 'Unauthorized: No token provided' });
+  }
+
+  const token = authHeader.split('Bearer ')[1];
+
+  try {
+    const user = await getSalon(token);
+    if (!user) {
+      return res.status(401).json({ error: 'Unauthorized: Invalid token' });
     }
-    if (req.path === '/login/submit') {
-        return next();  // ✅ allow login page access without auth
-    }
-     if (req.path === '/signup') {
-        return next();  // ✅ allow login page access without auth
-    }
-    if (req.path === '/signup/submit') {
-        return next();  // ✅ allow login page access without auth
-    }
-    
-    
-    const userUid = req.headers['authorization'];
-    
-    if (!userUid) return res.redirect('salon/login')
-    const token = userUid.split('Bearer ')[1] ;
-    const user = await getSalon(token) ;
-    // @ts-ignore
-    if (!user) return res.redirect('/login');
+
     req.user = user;
-    
-    next(); 
+    next();
+  } catch (error) {
+    console.error('Salon token verification error:', error.message);
+    return res.status(401).json({ error: 'Unauthorized: Token verification failed' });
+  }
 }
+
 module.exports = {
-    restrictToLoggedInSalonOnly,
-}
+  restrictToLoggedInSalonOnly,
+};
