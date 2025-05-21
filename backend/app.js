@@ -41,7 +41,5 @@ registerSocketHandlers(io);
 
 app.use('/customer' , restrictToLoggedInCustomerOnly , customerRouter ) ;
 app.use('/salon'  , restrictToLoggedInSalonOnly , salonRouter ) ;
-app.use('/customer', customerRouter ) ;
-app.use('/salon', salonRouter ) ;
 
 server.listen(port ,()=> {console.log(`server started at port ${port} `)} ) ;
