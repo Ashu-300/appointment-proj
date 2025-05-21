@@ -1,6 +1,9 @@
 import React from 'react'
+import { useNavigate } from 'react-router-dom';
 
 const Role = () => {
+
+    const navigate = useNavigate();
     const openCustomerPage = () => {
     window.open('/customer', '_blank', 'noopener,noreferrer');
   };

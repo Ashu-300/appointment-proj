@@ -1,9 +1,10 @@
 const Salon = require('../models/SalonModel') ;
 const Booking = require('../models/BookingModel')
 const {setSalon} = require('../jwtMapping/SalonMapping') ;
+
 async function signup(req , res){
     const body = req.body ;
-    Salon.create({
+    const salon = await Salon.create({
         salonName: body.salonName , 
         ownerName: body.ownerName,
         email: body.email,
@@ -13,6 +14,8 @@ async function signup(req , res){
         services: body.services,
         bookings: []
     })
+
+    console.log(salon);
     res.status(201).send('salon details are registered') ;
 }
 async function loginpage(req, res) {
