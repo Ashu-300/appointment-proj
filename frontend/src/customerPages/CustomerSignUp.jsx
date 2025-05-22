@@ -14,7 +14,6 @@ const CustomerSignUp = () => {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
 
-  // Two-way binding handler
   const handleChange = (e) => {
     setFormData(prev => ({
       ...prev,
@@ -29,9 +28,12 @@ const CustomerSignUp = () => {
 
     try {
       const response = await axios.post('http://localhost:8080/customer/signup/submit', formData); // Adjust route accordingly
-      setSuccess('Account created successfully!');
+     
+      if(response.status === 201){
+         setSuccess('Account created successfully!');
       setFormData({ name: '', email: '', password: '', phone: '' });
-      navigate('/customer/login')
+        navigate('/customer/login')
+      }
     } catch (err) {
       setError(err.response?.data?.message || 'Signup failed.');
     }

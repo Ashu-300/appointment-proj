@@ -63,7 +63,7 @@ async function getAllSalons(req , res){
 async function newBooking(req , res){
   
 // Assume req.body has: customerEmail, salonEmail, service, appointmentDate
-const { customerEmail, salonEmail, service, appointmentDate } = req.body;
+const { customerEmail, salonEmail, services, appointmentDate } = req.body;
 
 const customer = await Customer.findOne({ email: customerEmail });
 const salon = await Salon.findOne({ email: salonEmail });
@@ -76,7 +76,7 @@ if (!customer || !salon) {
 const anotherBooking = await Booking.create({
   customerId: customer._id,
   salonId: salon._id,
-  service,
+  services,
   appointmentDate
 });
 
