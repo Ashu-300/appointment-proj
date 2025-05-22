@@ -1,9 +1,12 @@
 import axios from 'axios';
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const SalonLogin = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+
+  const navigate = useNavigate();
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -18,12 +21,13 @@ const SalonLogin = () => {
     )
 
       if(response.status === 200){
-        localStorage.setItem('salonToken', response.data.token);
+        localStorage.setItem('token', response.data.token);
 
         const salonData = response.data.user;
         salonData.password = '';
         salonData.phone = '';
-        localStorage.setItem('salonData', JSON.stringify(salonData))
+        localStorage.setItem('salonData', JSON.stringify(salonData));
+        navigate('/salon')
 
         setEmail('');
         setPassword('');

@@ -54,9 +54,32 @@ async function allBookings(req , res){
   }
 }
 
+async function handleCheckAuth(req, res) {
+  try {
+    const user = req.user;
+
+    const salon = await Salon.findById(user._id);
+
+    if(!salon){
+      return res.status(404).json({
+        msg: 'no salon found'
+      })
+    }
+
+    return res.status(200).json({
+      msg: 'user is authorized'
+    })
+
+  } catch (error) {
+    res.status(400).json({
+      error: error
+    })
+  }
+}
+
 module.exports = {
     signup,
     loginpage,
     allBookings,
-
+    handleCheckAuth
 }
