@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { salonServices } from '../utils/servicesData';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 const SalonSignUp = () => {
   const [salonName, setSalonName] = useState('');
@@ -14,6 +15,8 @@ const SalonSignUp = () => {
   const [rate, setRate] = useState('');
   const [filteredSuggestions, setFilteredSuggestions] = useState([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
+
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     const value = e.target.value;
@@ -77,6 +80,9 @@ const SalonSignUp = () => {
 
       if (response.status === 201) {
         console.log('user registered');
+
+        navigate('/salon/login');
+        
         setSalonName('');
         setAddress('');
         setEmail('');

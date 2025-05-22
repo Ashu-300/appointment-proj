@@ -7,12 +7,15 @@ import { Provider } from 'react-redux'
 import store from './redux/store.js'
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'remixicon/fonts/remixicon.css';
+import SocketContext from './context/SocketContext.jsx'
 
 createRoot(document.getElementById('root')).render(
  
    <Provider store = {store}>
      <BrowserRouter>
-      <App />
+      <SocketContext>
+        <App />
+      </SocketContext>
     </BrowserRouter>
    </Provider>
   
