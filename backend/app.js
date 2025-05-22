@@ -6,11 +6,10 @@ const {connectMongo} = require('./Connection/Connection') ;
 const customerRouter = require('./routes/CustomerRoutes') ;
 const salonRouter = require('./routes/SalonRoutes');
 const cookieParser = require('cookie-parser');
+const {initializeSocketIO} = require('./socket')
 
-const http = require('http') ;
-const { Server } = require('socket.io');
+const http = require('http');
 const cors = require('cors');
-const registerSocketHandlers = require('./socket/socketHandler');
 
 const app = express() ;
 const port = process.env.PROT || 8080 ;
@@ -29,15 +28,7 @@ app.use(cookieParser()) ;
 
 connectMongo(process.env.MONGO_URL).then(()=>console.log(`MongoDB connected`)) ;
 
-const io = new Server(server, {
-  cors: {
-    origin: process.env.FRONTEND_URL,
-    methods: ['GET', 'POST'],
-    credentials:true
-  }
-});
-registerSocketHandlers(io);
-
+initializeSocketIO(server);
 
 app.use('/customer' , restrictToLoggedInCustomerOnly , customerRouter ) ;
 app.use('/salon'  , restrictToLoggedInSalonOnly , salonRouter ) ;

@@ -17,7 +17,7 @@ async function restrictToLoggedInSalonOnly(req, res, next) {
   const token = authHeader.split('Bearer ')[1];
 
   try {
-    const user = await getSalon(token);
+    const user = getSalon(token);
     if (!user) {
       return res.status(401).json({ error: 'Unauthorized: Invalid token' });
     }
