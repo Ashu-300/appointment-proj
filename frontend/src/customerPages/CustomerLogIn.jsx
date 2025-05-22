@@ -18,7 +18,7 @@ const CustomerLogIn = () => {
 
   // Auto-login if token exists
   useEffect(() => {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem('customerToken');
     const customer = JSON.parse(localStorage.getItem('customerInfo'))
 
     if (token && customer) {
@@ -52,7 +52,7 @@ const CustomerLogIn = () => {
       dispatch(login(customer));
 
       // ✅ Save token and customer info
-      localStorage.setItem('token', token);
+      localStorage.setItem('customerToken', token);
       localStorage.setItem('customerInfo', JSON.stringify(customer));
 
       

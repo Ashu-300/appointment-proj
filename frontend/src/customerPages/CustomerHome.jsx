@@ -29,6 +29,7 @@ const CustomerHome = () => {
     const fetchSalons = async () => {
       try {
         const token = (localStorage?.getItem('customerToken')) ;
+        
         const response = await axios.get('http://localhost:8080/customer', {
           headers: {
             Authorization: `Bearer ${token}`

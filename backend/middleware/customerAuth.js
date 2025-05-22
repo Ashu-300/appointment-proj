@@ -13,7 +13,7 @@ async function restrictToLoggedInCustomerOnly(req, res, next) {
     return res.status(401).json({ error: 'Unauthorized: No token provided' });
   }
 
-  const token = authHeader.split('Bearer ')[1];
+  const token = authHeader.split(' ')[1];
 
   try {
     const user = await getCustomer(token);
