@@ -1,25 +1,44 @@
 import React, { useState } from 'react';
 import Navbar from '../salonComponents/Navbar';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import { clearBookingById } from '../redux/slices/BookingSlice';
 
 export default function AppointApprovalPage() {
-  const { appointmentId } = useParams();
   const navigate = useNavigate();
-
+  const dispatch = useDispatch();
+  const customerDetail = JSON.parse(localStorage.getItem('customerInfo'));
+  const bookings = useSelector((state)=> state.booking.booking);
+  console.log(bookings);
+  
+  
+  const location = useLocation();
+  const { id , booking } = location.state || {};
+  
+  
   // Placeholder customer data (replace with fetched data in real implementation)
   const customer = {
-    name: 'John Doe',
-    email: 'john@example.com',
-    phone: '123-456-7890',
-    preferredSlots: ['10:00 AM', '2:00 PM', '4:00 PM'],
+    name: customerDetail.name,
+    email: customerDetail.email,
+    phone: customerDetail.phone,
+    preferredSlots: booking.slots,
   };
-
+ 
+  
   const [selectedSlot, setSelectedSlot] = useState('');
 
-  const handleConfirm = () => {
+  const handleConfirm = (booking) => {
     // Handle confirmation logic here
+    booking.status = 'confirmed';
+    booking.slot = selectedSlot ;
     alert(`Appointment confirmed for ${customer.name} at ${selectedSlot}`);
-    navigate('/salon/new-appointments');
+    const match = bookings.find(b => b.id === booking.id);
+    if (match) {
+      dispatch(clearBookingById(booking.id));
+    }
+    navigate('/salon/new-appointments', {
+      state : {booking}
+    });
   };
 
   const handleDecline = () => {
@@ -59,14 +78,14 @@ export default function AppointApprovalPage() {
                 onChange={() => setSelectedSlot(slot)}
                 className="mr-2"
               />
-              {slot}
+              {new Date(slot).toLocaleString()}
             </label>
           ))}
         </div>
 
         <div className="flex justify-between mt-6">
-          <button onClick={handleDecline} className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600">Decline</button>
-          <button onClick={handleConfirm} disabled={!selectedSlot} className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 disabled:opacity-50">Confirm Approval</button>
+          <button onClick={()=>handleDecline(booking)} className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600">Decline</button>
+          <button onClick={()=>handleConfirm(booking)} disabled={!selectedSlot} className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 disabled:opacity-50">Confirm Approval</button>
         </div>
       </div>
     </div>

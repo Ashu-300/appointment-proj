@@ -4,6 +4,12 @@ import { useLocation, useParams } from 'react-router-dom';
 import axios from 'axios';
 import { useSelector } from 'react-redux';
 import { useForm } from 'react-hook-form';
+import { io } from "socket.io-client";
+
+const socket = io("http://localhost:8080", {
+  withCredentials: true,
+});
+
 
 
 const CustomerSalonDetails = () => {
@@ -15,7 +21,7 @@ const {register , handleSubmit , reset , watch , formState:{errors}   } = useFor
   const location = useLocation();
   const { salon } = location.state || {};
 
-  const [bookings, setBookings] = useState([]);
+  // const [bookings, setBookings] = useState([]);
   const [error, setError] = useState(null);
   const [selectedServices, setSelectedServices] = useState([]);
   const [serviceError, setServiceError] = useState('');
@@ -23,35 +29,46 @@ const {register , handleSubmit , reset , watch , formState:{errors}   } = useFor
   
 
 
-  const { customerInfo, isLoggedIn } = useSelector((state) => state.customer);
+  // const { customerInfo, isLoggedIn } = useSelector((state) => state.customer);
 
-  useEffect(() => {
-    const fetchBookings = async () => {
-      try {
-        const token = localStorage.getItem('customerToken');
-        const response = await axios.get(
-          `http://localhost:8080/customer/mybooking/${customerInfo?.email}`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-        setBookings(response.data);
-      } catch (err) {
-        console.error('Error fetching bookings:', err);
-        setError('Failed to load bookings.');
-      }
-    };
+useEffect(() => {
+  socket.on('connect', () => {
+    console.log('Connected with socket ID:', socket.id);
+    const customer = JSON.parse(localStorage.getItem('customerInfo'));
+    socket.emit('customer_joined', customer?._id); // ✅ Use _id, not socket.id
+  });
 
-    if (salon?._id) fetchBookings();
-  }, [salon]);
+  socket.on('booking_confirmed', ({ booking }) => {
+    console.log('✅ Booking confirmed from salon:', booking);
+    alert('📢 Booking has been confirmed!');
+  });
+
+  return () => {
+    socket.off('connect');
+    socket.off('booking_confirmed');
+  };
+}, []);
+  
+
+  const customer = JSON.parse( localStorage.getItem('customerInfo')) ;
 
   
   // booking handler
   const handleBooking = async () => {
+    
     const customer = JSON.parse(localStorage.getItem('customerInfo'));
     const token = localStorage.getItem('customerToken');
+    socket.emit('customerBookingRequest' , {
+     
+      service : selectedServices,
+      slots : selectedSlots,
+      salonId : salon._id , 
+      customerId : customer.email,
+
+    })
+    
+
+    
     
     if (selectedServices.length === 0) {
     setServiceError('Please select at least one service.');
@@ -66,12 +83,16 @@ const {register , handleSubmit , reset , watch , formState:{errors}   } = useFor
         customerEmail: customer.email,
         salonEmail: salon.email,
         services: selectedServices,
-        appointmentDate: selectedSlots  , 
+        selectedSlots: selectedSlots  , 
       };
-      console.log(bookingDetail);
+      socket.emit('Booking', {
+        sender : socket.id,
+        message: bookingDetail
+      });
       // setBookings((prev) => [...prev, data]);
       alert('Booking Request Send');
       setSelectedServices([]);
+      setselectedSlots([]);
       reset()
     } catch (error) {
       console.error('Booking failed:', error.response?.data || error.message);
@@ -257,7 +278,7 @@ const {register , handleSubmit , reset , watch , formState:{errors}   } = useFor
             </form>
           </div>
 
-          {/* Bookings List */}
+          {/* Bookings List
           <h2 className="text-2xl font-semibold text-gray-800 mt-10 mb-4">
             Your Bookings
           </h2>
@@ -284,7 +305,7 @@ const {register , handleSubmit , reset , watch , formState:{errors}   } = useFor
                 </li>
               ))}
             </ul>
-          )}
+          )} */}
         </div>
       </div>
     </>

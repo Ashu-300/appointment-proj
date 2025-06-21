@@ -1,13 +1,21 @@
 import React, { useState } from 'react';
 import Navbar from '../salonComponents/Navbar';
+import { useSelector } from 'react-redux';
+import axios from 'axios';
 
 export default function SalonDashboardPage() {
+
+const salonDetail = useSelector((state)=>state.salon.salon)?.salon ;
+const token = localStorage.getItem('salonToken');
+
+
+  
   const [salon, setSalon] = useState({
-    name: 'Glamour Salon',
-    owner: 'Jane Doe',
-    phone: '9876543210',
-    email: 'glamour@example.com',
-    services: ['Haircut', 'Facial', 'Massage'],
+    name: salonDetail.salonName,
+    owner: salonDetail.ownerName,
+    phone: salonDetail.phone,
+    email: salonDetail.email,
+    services: salonDetail.services,
   });
 
   const [editing, setEditing] = useState(false);
@@ -26,6 +34,21 @@ export default function SalonDashboardPage() {
     updatedServices[index] = value;
     setSalon((prev) => ({ ...prev, services: updatedServices }));
   };
+  (async () => {
+  try {
+    const completedBookings = await axios.get(`http://localhost:8080/salon/${salonDetail.email}/completed` , 
+      {
+         headers: {
+            Authorization: `Bearer ${token}`
+          }
+      }
+    );
+    setAppointments(completedBookings.data) ;
+  } catch (error) {
+    console.error('Error fetching completed bookings:', error);
+  }
+})();
+
 
   return (
     <div className="min-h-screen bg-gray-100 p-4">
@@ -112,7 +135,7 @@ export default function SalonDashboardPage() {
             ) : (
               <ul className="ml-2 list-disc list-inside">
                 {salon.services.map((service, index) => (
-                  <li key={index}>{service}</li>
+                  <li key={index}>{service.serviceName}</li>
                 ))}
               </ul>
             )}
@@ -124,12 +147,12 @@ export default function SalonDashboardPage() {
       <div className="mt-6 bg-white rounded shadow p-6">
         <h2 className="text-2xl font-bold mb-4">Completed Appointments</h2>
         <ul className="space-y-2">
-          {appointments.map((appt) => (
+          {appointments?.map((appt) => (
             <li
-              key={appt.id}
+              key={appt?.id}
               className="border p-2 rounded shadow-sm flex justify-between items-center"
             >
-              <span>{appt.customer} - {appt.service}</span>
+              <span>{appt?.customer} - {appt?.service}</span>
               <span className="text-gray-500 text-sm">{appt.date}</span>
             </li>
           ))}

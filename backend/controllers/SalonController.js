@@ -15,7 +15,7 @@ async function signup(req , res){
         bookings: []
     })
 
-    console.log(salon);
+   
     res.status(201).send('salon details are registered') ;
 }
 async function loginpage(req, res) {
@@ -30,11 +30,12 @@ async function loginpage(req, res) {
     }
 
     const token = setSalon(salon); 
+   
 
     res.status(200).json({
       message: "Login successful",
       token,
-      user: { salonName: salon.salonName, email: salon.email , _id:salon._id }
+      salon: salon
     });
   } catch (err) {
     res.status(500).json({ message: "Server error", error: err.message });
@@ -77,9 +78,44 @@ async function handleCheckAuth(req, res) {
   }
 }
 
+async function salonInfo(req, res) {
+  try {
+    // Assuming a middleware attaches `req.user` after verifying the token
+    const email = req.user?.email; // or req.user.id if you store user ID in token
+
+    if (!email) {
+      return res.status(400).json({ message: 'Invalid token or missing email' });
+    }
+
+    const salon = await Salon.findOne({ email });
+
+    if (!salon) {
+      return res.status(404).json({ message: 'Salon not found' });
+    }
+    
+   const salonObj = salon.toObject();
+  delete salonObj.password;
+  delete salonObj.salt;
+
+    res.status(200).json(salonObj);
+  } catch (error) {
+    console.error('Error fetching salon info:', error);
+    res.status(500).json({ message: 'Internal Server Error' });
+  }
+}
+
+async function allCompletedBookings(req , res) {
+  const salon = await Salon.findOne({email : req.params.email}) ;
+  const bookings = await Booking.find({_id : salon._id}) ;
+  const completedBooking = bookings.filter(booking=> booking.status === completed) ;
+  res.status(200).json(completedBooking) ;
+}
+
 module.exports = {
     signup,
     loginpage,
     allBookings,
-    handleCheckAuth
+    handleCheckAuth,
+    salonInfo,
+    allCompletedBookings
 }

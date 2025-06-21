@@ -38,20 +38,25 @@ SalonSchema.pre('save', function (next) {
 });
 
 
-SalonSchema.static('matchPassword' , async function(email , password){
-  const salon = await this.findOne({email}) ;
-  if(!salon) throw new Error('salon not found'); 
-  const salt = salon.salt ;
-  const hashedPassword = salon.password ;
+SalonSchema.static('matchPassword', async function (email, password) {
+  const salon = await this.findOne({ email });
+  if (!salon) return null; // no throw
 
-  const salonProvidedPassword = createHmac('sha256' ,salt).update(password).digest('hex') ;
-   if(hashedPassword !== salonProvidedPassword) throw new Error('password does not match');
+  const salt = salon.salt;
+  const hashedPassword = salon.password;
 
-   const salonObj = salon.toObject();
+  const salonProvidedPassword = createHmac('sha256', salt)
+    .update(password)
+    .digest('hex');
+
+  if (hashedPassword !== salonProvidedPassword) return null; // no throw
+
+  const salonObj = salon.toObject();
   delete salonObj.password;
   delete salonObj.salt;
   return salonObj;
-})
+});
+
 const Salon = mongoose.model( 'SalonModel' , SalonSchema) ;
 
 module.exports = Salon;

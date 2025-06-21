@@ -1,11 +1,13 @@
 const express = require('express') ;
 const router = express.Router() ;
-const {signup , loginpage , allBookings, handleCheckAuth } = require('../controllers/SalonController') ;
+const {signup , loginpage , allBookings, handleCheckAuth , salonInfo , allCompletedBookings } = require('../controllers/SalonController') ;
 
-router.post('/' , allBookings) ;
+router.get('/', salonInfo)
+router.post(':email/allbooking' , allBookings) ;
 router.post('/signup/submit' , signup) ;
 router.post('/login/submit' , loginpage) ;
 router.get('/checkAuth', handleCheckAuth);
+router.get('/:email/completed' , allCompletedBookings)
 
 
 module.exports = router ;

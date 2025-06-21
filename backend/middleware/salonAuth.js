@@ -14,10 +14,12 @@ async function restrictToLoggedInSalonOnly(req, res, next) {
     return res.status(401).json({ error: 'Unauthorized: No token provided' });
   }
 
-  const token = authHeader.split('Bearer ')[1];
+  const token = authHeader.split(' ')[1];
+    // const token = authHeader;
 
+ 
   try {
-    const user = getSalon(token);
+    const user = await getSalon(token);
     if (!user) {
       return res.status(401).json({ error: 'Unauthorized: Invalid token' });
     }
@@ -29,7 +31,7 @@ async function restrictToLoggedInSalonOnly(req, res, next) {
     return res.status(401).json({ error: 'Unauthorized: Token verification failed' });
   }
 }
-
+ 
 module.exports = {
   restrictToLoggedInSalonOnly,
 };

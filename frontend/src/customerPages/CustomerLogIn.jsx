@@ -45,8 +45,6 @@ const CustomerLogIn = () => {
       
       const res = await axios.post('http://localhost:8080/customer/login/submit', credentials); // adjust endpoint if needed
       const { token, customer } = res.data;
-
-      console.log(customer);
       
      
       dispatch(login(customer));
