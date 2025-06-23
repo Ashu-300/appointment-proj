@@ -24,30 +24,40 @@ async function signuppage(req , res){
 
 async function loginpage(req, res) {
   const { email, password } = req.body;
- 
+
   try {
-  
-    
+    // Validate input
+    if (!email || !password) {
+      return res.status(400).json({ message: "Email and password are required" });
+    }
+
+    // Check if customer exists and password matches
     const customer = await Customer.matchPassword(email, password);
-   
+
     if (!customer) {
       return res.status(401).json({ message: "Invalid email or password" });
     }
-  
-    
-    const token = setCustomer(customer); 
-    
-    
 
+    // ✅ Generate token (JWT)
+    const token = setCustomer(customer); // returns plain JWT, not "Bearer <token>"
+
+    // ✅ Return token and customer info
     res.status(200).json({
       message: "Login successful",
-      token,
-      customer: { name: customer.name, email: customer.email , _id:customer._id }
+      token, // ✅ plain token, frontend will attach "Bearer " prefix
+      customer: {
+        name: customer.name,
+        email: customer.email,
+        _id: customer._id  
+      }
     });
+
   } catch (err) {
+    console.error("❌ Login error:", err.message);
     res.status(400).json({ message: "user error", error: err.message });
   }
 }
+
 
 async function getAllSalons(req , res){
  try {
@@ -93,7 +103,7 @@ async function myBooking(req,res){
    try {
     const {email} = req.params
     const customer = await Customer.findOne({email:email})
-    const bookings = await Booking.find({_id:customer.bookings})
+    const bookings = await Booking.find({customerId : customer._id}) ;
       
     res.status(200).json(bookings);
   } catch (error) {

@@ -1,5 +1,7 @@
 const { Server } = require("socket.io");
 const Customer = require("./models/CustomerModel");
+const Booking = require('./models/BookingModel') ;
+const Salon = require('./models/SalonModel');
 // const cors = require('cors');
 
 let io;
@@ -18,29 +20,42 @@ async function initializeSocketIO(httpServer) {
 
     io.on("connection", (socket) => {
        socket.on('customer_joined', (customerId) => {
-        console.log('Customer joined', customerId, socket.id);
         customer[customerId] = socket.id;
         });
 
        
         socket.on('salon_owner_join', (salonId) => {
             salonOwners[salonId] = socket.id;
-            console.log(`Salon owner ${salonId} joined: ${socket.id}`);
         });
 
         socket.on('customerBookingRequest', async ({ services , slots , salonId , customerEmail }) => {
-         const customer = await Customer.findOne({customerEmail}) ;
+         const customer = await Customer.findOne({email : customerEmail}) ;
+         const salon = await Salon.findOne({_id:salonId}) ;
          
+         
+         const newBooking = new Booking({
+            customerId : customer?._id , 
+            salonId : salonId,
+            customerName:customer?.name,
+            customerEmail:customer?.email,
+            customerPhone:customer?.phone, 
+            salonName:salon?.salonName,
+            salonEmail:salon?.email,
+            salonPhone:salon?.phone, 
+            services : services,
+            slots: slots,
+            appointmentDate : slots[0],
+            status : 'pending' ,
+         })
+         const savedBooking = await newBooking.save();
+
          
             const salonSocketId = salonOwners[salonId];
-            if (salonSocketId) {
-            io.to(salonSocketId).emit('new_booking_notification', {
-                customerName : customer?.name,
-                customerId: customer?._id,
-                services,
-                slots,
-                date : Date.now().toLocaleString()
-            });
+            
+            
+            if (salonSocketId) {  
+          io.to(salonSocketId).emit('new_booking_notification', savedBooking);
+
             } else {
                 socket.emit('booking_status', {
                     status: false,
@@ -48,16 +63,30 @@ async function initializeSocketIO(httpServer) {
                 });
             }
         });
-       socket.on('booking_confirmed', ({ customerId, booking }) => {
-        const customerSocketId = customer[customerId]; // ✅ Lookup by customerId
-        if (customerSocketId) {
-            io.to(customerSocketId).emit('booking_confirmed', { booking });
+      socket.on('booking_confirmed', async ({ customerId, booking }) => {
+        try {
+            const customerSocketId = customer[customerId];
+            if (customerSocketId) {
+            io.to(customerSocketId).emit('booking_confirmed', booking);
+            }
+        } catch (err) {
+            console.error('Error updating booking:', err);
         }
         });
-
- 
+        socket.on('booking_decline' , async({bookingId, customerId , booking})=>{
+            try{
+                 await Booking.findByIdAndDelete(bookingId);
+                 const customerSocketId = customer[customerId] ;
+                 if(customerSocketId){
+                    io.to(customerSocketId).emit('booking_decline' , {
+                        message:"❌ booking can't be accepted due to unabvailability of slot"
+                    })
+                 }
+            }catch(err){
+                console.error('Error updating booking:', err);
+            }
+        }) 
         socket.on('disconnect', () => {
-            console.log('user disconnected:', socket.id);
         })
     });   
 }

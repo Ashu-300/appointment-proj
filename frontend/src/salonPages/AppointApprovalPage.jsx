@@ -1,48 +1,98 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Navbar from '../salonComponents/Navbar';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { clearBookingById } from '../redux/slices/BookingSlice';
+import axios from 'axios';
+import { io } from 'socket.io-client';
 
 export default function AppointApprovalPage() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const customerDetail = JSON.parse(localStorage.getItem('customerInfo'));
-  const bookings = useSelector((state)=> state.booking.booking);
-  console.log(bookings);
-  
+  const [bookings, setbookings] = useState([]);
+  const salon = useSelector((state) => state?.salon?.salon)?.salon;
+  const salontoken = localStorage.getItem('salonToken') ;
+  const socket = io('http://localhost:8080');
   
   const location = useLocation();
-  const { id , booking } = location.state || {};
+  const {  booking } = location.state || {};
   
+  
+  
+  useEffect(() => {
+  const fetchExistingBookings = async () => {
+    try {
+      const response = await axios.get(`http://localhost:8080/salon/${salon.email}/allbooking` , {
+        headers : {
+          Authorization: `Bearer ${salontoken}`
+        }
+      });
+      setbookings(response.data); // overwrite local state with DB data
+    } catch (error) {
+      console.error('Error fetching bookings:', error);
+    }
+  };
+
+  if (salon?._id) {
+    fetchExistingBookings();
+  }
+}, [salon?._id]);
   
   // Placeholder customer data (replace with fetched data in real implementation)
   const customer = {
-    name: customerDetail.name,
-    email: customerDetail.email,
-    phone: customerDetail.phone,
-    preferredSlots: booking.slots,
+    name: booking?.customerName,
+    email: booking?.customerEmail,
+    phone: booking?.customerPhone,
+    Slots: booking?.slots,
+    services: booking?.services ,
   };
+
  
   
   const [selectedSlot, setSelectedSlot] = useState('');
 
-  const handleConfirm = (booking) => {
-    // Handle confirmation logic here
-    booking.status = 'confirmed';
-    booking.slot = selectedSlot ;
-    alert(`Appointment confirmed for ${customer.name} at ${selectedSlot}`);
-    const match = bookings.find(b => b.id === booking.id);
-    if (match) {
-      dispatch(clearBookingById(booking.id));
-    }
-    navigate('/salon/new-appointments', {
-      state : {booking}
-    });
-  };
+  const handleConfirm = async (booking) => {
+  try {
+    const updatedBooking = {
+      ...booking,
+      status: 'confirmed',
+      slot: selectedSlot, // Or update `slots: [selectedSlot]` if that's your schema
+    };
 
-  const handleDecline = () => {
+    const token = localStorage.getItem('salonToken');
+
+    // ✅ Call API with correct booking ID
+    await axios.put(`http://localhost:8080/salon/booking/confirm/${booking._id}`, updatedBooking, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    // ✅ Emit via socket to customer
+    socket.emit('booking_confirmed', {
+      customerId: booking.customerId,
+      booking: updatedBooking,
+    });
+
+    alert(`Appointment confirmed for ${booking.customerName} at ${selectedSlot}`);
+    navigate('/salon/new-appointments', {
+      state: { booking: updatedBooking },
+    });
+  } catch (error) {
+    console.error('Error confirming booking:', error);
+    alert('Failed to confirm appointment. Please try again.');
+  }
+};
+
+
+  const handleDecline = (booking) => {
     // Handle decline logic here
+     socket.emit('booking_decline', {
+      bookingId: booking._id,
+      customerId: booking.customerId,
+      booking: booking,
+    });
+
     alert(`Appointment declined for ${customer.name}`);
     navigate('/salon/new-appointments');
   };
@@ -68,7 +118,7 @@ export default function AppointApprovalPage() {
 
         <div className="mb-4">
           <p className="font-semibold mb-2">Select a preferred time slot:</p>
-          {customer.preferredSlots.map((slot, index) => (
+          {customer.Slots?.map((slot, index) => (
             <label key={index} className="block mb-2">
               <input
                 type="radio"

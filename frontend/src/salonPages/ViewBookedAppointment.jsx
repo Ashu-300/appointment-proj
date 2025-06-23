@@ -1,19 +1,33 @@
 import React from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import Navbar from '../salonComponents/Navbar';
+import axios from 'axios';
 
 export default function ViewBookedAppointment() {
   const navigate = useNavigate();
-  const { appointmentId } = useParams();
+  const location = useLocation() ;
+  const {bookie} = location.state || {} ;
+  const date = new Date(bookie.appointmentDate).toLocaleDateString('en-US', {
+                    day: '2-digit',
+                    month: 'long',
+                    year: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    hour12: true
+                  })
 
-  // Placeholder appointment data (replace with real data)
-  const appointment = {
-    customerName: 'Jane Smith',
-    email: 'jane.smith@example.com',
-    phone: '987-654-3210',
-    time: '3:00 PM, 25th May 2025',
-    service: 'Haircut and Styling',
-  };
+const salontoken = localStorage.getItem('salonToken') ;
+  async function completeBooking(bookie){
+    bookie.status = 'completed' ;
+    const response = await axios.put(`http://localhost:8080/salon/booking/complete/${bookie._id}` , bookie , {
+      headers:{
+         Authorization: `Bearer ${salontoken}` 
+      }
+    }) ;
+    navigate('/salon/booked-appointments') ;
+  }
+  
+
 
   return (
     <div className="min-h-screen bg-gray-100 p-4">
@@ -30,11 +44,22 @@ export default function ViewBookedAppointment() {
         <h2 className="text-2xl font-bold mb-4 text-center">Appointment Details</h2>
 
         <div className="space-y-3">
-          <p><strong>Customer Name:</strong> {appointment.customerName}</p>
-          <p><strong>Email:</strong> {appointment.email}</p>
-          <p><strong>Phone:</strong> {appointment.phone}</p>
-          <p><strong>Appointment Time:</strong> {appointment.time}</p>
-          <p><strong>Service:</strong> {appointment.service}</p>
+          <p><strong>Customer Name:</strong> {bookie.customerName}</p>
+          <p><strong>Email:</strong> {bookie.customerEmail}</p>
+          <p><strong>Phone:</strong> {bookie.customerPhone}</p>
+          <p><strong>Appointment Time:</strong> {date}</p>
+          <p>
+            <strong>Service:</strong>{' '}
+            {bookie.services.map((service, index) => (
+              <span key={index}>{service.serviceName}{index < bookie.services.length - 1 ? ', ' : ''}</span>
+            ))}
+          </p>
+          <button
+            onClick={()=>completeBooking(bookie)}
+            className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-md shadow-sm transition duration-300"
+          >
+            Complete Booking
+          </button>
         </div>
       </div>
     </div>

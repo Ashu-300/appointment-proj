@@ -52,12 +52,14 @@ export default function SalonHomePage() {
 
    if (authError) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-gray-400 text-yellow-800 p-6 text-center">
-        <p className="text-lg font-semibold mb-4">You must be logged in to view salon listings.</p>
-        <Link to='/salon/login' className="text-black underline  text-base">
-          Go to Login Page
+      <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-red-200 to-red-400 text-white p-6 text-center">
+        <p className="text-xl font-semibold mb-4">🚫 You must be logged in to view salon listings.</p>
+        <Link
+          to="/customer/login"
+          className="bg-white text-red-600 px-6 py-2 rounded-full font-semibold shadow-md hover:bg-gray-100 transition"
+        >
+          🔑 Go to Login Page
         </Link>
-
       </div>
     );
   }

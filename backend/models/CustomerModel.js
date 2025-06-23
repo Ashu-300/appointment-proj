@@ -26,31 +26,26 @@ CustomerSchema.pre('save', function (next) {
 });
 
 
-CustomerSchema.static('matchPassword' , async function(email , password){
-  const customer = await this.findOne({email:email}) ;
+CustomerSchema.static('matchPassword', async function(email, password) {
+  const customer = await this.findOne({ email });
 
-  
+  if (!customer) return null;
 
-  
-  
-  if(!customer) throw new Error('customer does not found'); 
-  const salt = customer.salt ;
-  const hashedPassword = customer.password ;
+  const salt = customer.salt;
+  const hashedPassword = customer.password;
+  const customerProvidedPassword = createHmac('sha256', salt)
+    .update(password)
+    .digest('hex');
 
-  const customerProvidedPassword = createHmac('sha256' ,salt).update(password).digest('hex') ;
+  if (hashedPassword !== customerProvidedPassword) return null;
 
-  if(hashedPassword !== customerProvidedPassword) throw new Error('password does not match');
-
-
-
-
-
-   const customerObj = customer.toObject();
+  const customerObj = customer.toObject();
   delete customerObj.password;
   delete customerObj.salt;
 
   return customerObj;
-})
+});
+
 
 const Customer = mongoose.model('CustomerModel' , CustomerSchema) ;
 

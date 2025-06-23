@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Navbar from '../salonComponents/Navbar';
 import { useSelector } from 'react-redux';
 import axios from 'axios';
+// ⬅️ Add useEffect
 
 export default function SalonDashboardPage() {
 
@@ -20,10 +21,7 @@ const token = localStorage.getItem('salonToken');
 
   const [editing, setEditing] = useState(false);
 
-  const [appointments, setAppointments] = useState([
-    { id: 1, customer: 'Alice', service: 'Haircut', date: '2025-05-10' },
-    { id: 2, customer: 'Bob', service: 'Facial', date: '2025-05-18' },
-  ]);
+  const [appointments, setappointments] = useState([]);
 
   const handleChange = (field, value) => {
     setSalon((prev) => ({ ...prev, [field]: value }));
@@ -34,20 +32,34 @@ const token = localStorage.getItem('salonToken');
     updatedServices[index] = value;
     setSalon((prev) => ({ ...prev, services: updatedServices }));
   };
-  (async () => {
-  try {
-    const completedBookings = await axios.get(`http://localhost:8080/salon/${salonDetail.email}/completed` , 
-      {
-         headers: {
-            Authorization: `Bearer ${token}`
-          }
-      }
-    );
-    setAppointments(completedBookings.data) ;
-  } catch (error) {
-    console.error('Error fetching completed bookings:', error);
+
+  
+
+// Inside component...
+useEffect(() => {
+  const fetchCompletedAppointments = async () => {
+    try {
+      const completedBookings = await axios.get(
+        `http://localhost:8080/salon/${salonDetail.email}/completed`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      setappointments(completedBookings.data);
+    } catch (error) {
+      console.error('Error fetching completed bookings:', error);
+    }
+  };
+
+  if (salonDetail?.email) {
+    fetchCompletedAppointments();
   }
-})();
+}, [salonDetail?.email]);
+
+
+
 
 
   return (
@@ -149,11 +161,15 @@ const token = localStorage.getItem('salonToken');
         <ul className="space-y-2">
           {appointments?.map((appt) => (
             <li
-              key={appt?.id}
+              key={appt?._id}
               className="border p-2 rounded shadow-sm flex justify-between items-center"
             >
-              <span>{appt?.customer} - {appt?.service}</span>
-              <span className="text-gray-500 text-sm">{appt.date}</span>
+              <span>{appt?.customerName} -{' '}
+                {appt?.services.map((service) => service?.serviceName).join(', ')}
+              </span>
+              <span className="text-gray-500 text-sm">
+                {new Date(appt.appointmentDate).toLocaleString()}
+              </span>
             </li>
           ))}
         </ul>

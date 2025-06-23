@@ -5,6 +5,7 @@ import axios from 'axios';
 import { useSelector } from 'react-redux';
 import { useForm } from 'react-hook-form';
 import { io } from "socket.io-client";
+import Header from '../cutomerComponent/Header';
 
 const socket = io("http://localhost:8080", {
   withCredentials: true,
@@ -30,66 +31,46 @@ const {register , handleSubmit , reset , watch , formState:{errors}   } = useFor
 
 
   // const { customerInfo, isLoggedIn } = useSelector((state) => state.customer);
+const customer = JSON.parse(localStorage.getItem('customerInfo'));
+const token = localStorage.getItem('customerToken') ;
 
 useEffect(() => {
-  socket.on('connect', () => {
-    console.log('Connected with socket ID:', socket.id);
-    const customer = JSON.parse(localStorage.getItem('customerInfo'));
-    socket.emit('customer_joined', customer?._id); // ✅ Use _id, not socket.id
-  });
-
-  socket.on('booking_confirmed', ({ booking }) => {
+   
+  socket.emit('customer_joined' , customer._id) ;
+  socket.on('booking_confirmed', async ( booking ) => {
     console.log('✅ Booking confirmed from salon:', booking);
+      const formattedTime = new Date(booking.appointmentDate).toLocaleTimeString([], {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true,
+    });    
     alert('📢 Booking has been confirmed!');
   });
 
+  socket.on('booking_decline' , ({message})=>{
+    alert(message) ;
+  })
   return () => {
     socket.off('connect');
     socket.off('booking_confirmed');
   };
 }, []);
-  
 
-  const customer = JSON.parse( localStorage.getItem('customerInfo')) ;
-
-  
-  // booking handler
+ // booking handler
   const handleBooking = async () => {
-    
-    const customer = JSON.parse(localStorage.getItem('customerInfo'));
-    const token = localStorage.getItem('customerToken');
-    socket.emit('customerBookingRequest' , {
-     
-      service : selectedServices,
-      slots : selectedSlots,
-      salonId : salon._id , 
-      customerId : customer.email,
-
-    })
-    
-
-    
-    
+    try {
+       socket.emit('customerBookingRequest' , {
+         services : selectedServices,
+         slots : selectedSlots,
+         salonId : salon._id , 
+         customerEmail  : customer.email,
+    })   
     if (selectedServices.length === 0) {
     setServiceError('Please select at least one service.');
     return;
   } else {
     setServiceError('');
   }
-
-    try {
-     
-      const bookingDetail = {
-        customerEmail: customer.email,
-        salonEmail: salon.email,
-        services: selectedServices,
-        selectedSlots: selectedSlots  , 
-      };
-      socket.emit('Booking', {
-        sender : socket.id,
-        message: bookingDetail
-      });
-      // setBookings((prev) => [...prev, data]);
       alert('Booking Request Send');
       setSelectedServices([]);
       setselectedSlots([]);
@@ -141,6 +122,8 @@ useEffect(() => {
 
   return (
     <>
+
+    <Header customer={customer} />
       <div className="p-8 bg-gray-100 min-h-screen">
         <div className="max-w-4xl mx-auto bg-white shadow-lg rounded-lg p-6">
           <h1 className="text-4xl font-bold text-indigo-700 mb-2">

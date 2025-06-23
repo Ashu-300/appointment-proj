@@ -13,6 +13,7 @@ import ViewBookedAppointment from './salonPages/ViewBookedAppointment'
 import LandingPage from './landingComponent/LandingPage'
 import CustomerSalonDeatil from './customerPages/CustomerSalonDeatil'
 import { Route, Routes } from 'react-router-dom'
+import CustomerDashboard from './customerPages/customerDashBoard'
 
 const App = () => {
   return (
@@ -24,6 +25,7 @@ const App = () => {
       <Route path='/customer/:name' element={<CustomerSalonDeatil/>} />
       <Route path='/customer/signup' element={<CustomerSignUp/>} />
       <Route path='/customer/login' element={<CustomerLogIn/>} />
+      <Route path='/customer/dashboard' element={<CustomerDashboard/>}/>
       <Route path='/salon' element={<SalonHome/>} />
       <Route path='/salon' element={
         <SalonAuthWrapper>

@@ -1,6 +1,8 @@
 const Salon = require('../models/SalonModel') ;
 const Booking = require('../models/BookingModel')
 const {setSalon} = require('../jwtMapping/SalonMapping') ;
+const mongoose = require('mongoose');
+
 
 async function signup(req , res){
     const body = req.body ;
@@ -42,18 +44,22 @@ async function loginpage(req, res) {
   }
 }
 
-async function allBookings(req , res){
+const allBookings = async (req, res) => {
   try {
-    const {salonEmail} = req.body
-    const salon = await Salon.findOne({email:salonEmail})
-    const bookings = await Booking.find({_id:salon.bookings})
+    const email = req.params.email; // ✅ Correct way to access route param
+    const salon = await Salon.findOne({ email }); // ✅ Use variable email
 
-      
+    if (!salon) {
+      return res.status(404).json({ message: 'Salon not found' });
+    }
+
+    const bookings = await Booking.find({ salonId: salon._id });
     res.status(200).json(bookings);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
-}
+};
+
 
 async function handleCheckAuth(req, res) {
   try {
@@ -106,10 +112,45 @@ async function salonInfo(req, res) {
 
 async function allCompletedBookings(req , res) {
   const salon = await Salon.findOne({email : req.params.email}) ;
-  const bookings = await Booking.find({_id : salon._id}) ;
-  const completedBooking = bookings.filter(booking=> booking.status === completed) ;
+  const bookings = await Booking.find({salonId : salon._id}) ;
+  const completedBooking = bookings.filter(booking=> booking.status === "completed") ;
   res.status(200).json(completedBooking) ;
 }
+
+async function confirmBooking (req, res)  {
+  const { id } = req.params;
+  const update = req.body;
+  
+  
+
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    return res.status(400).json({ error: 'Invalid booking ID' });
+  }
+
+  try {
+    const updatedBooking = await Booking.findByIdAndUpdate(id, update, { new: true });
+ 
+    
+
+    if (!updatedBooking) {
+      return res.status(404).json({ error: 'Booking not found' });
+    }
+
+    res.json(updatedBooking);
+  } catch (err) {
+    console.error('Error updating booking:', err);
+    res.status(500).json({ error: 'Failed to update booking' });
+  }
+}
+
+async function completeBooking(req,res) {
+
+  const {id} = req.params ;
+  const update = req.body;
+  const confirmedBooking = await Booking.findByIdAndUpdate(id , update , {new : true} ) ;
+  res.status(200).json(confirmedBooking) ;
+}
+
 
 module.exports = {
     signup,
@@ -117,5 +158,8 @@ module.exports = {
     allBookings,
     handleCheckAuth,
     salonInfo,
-    allCompletedBookings
+    allCompletedBookings,
+    confirmBooking,
+    completeBooking
+    
 }

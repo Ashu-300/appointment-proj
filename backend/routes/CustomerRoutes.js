@@ -7,6 +7,7 @@ router.post('/signup/submit' , signuppage) ;
 router.post('/login/submit' , loginpage) ;
 router.post('/newbooking' , newBooking ) ;
 router.get('/mybooking/:email' , myBooking);
-router.get('/available-slots' , slots)
-
+// router.get('/available-slots' , slots)
+ 
 module.exports = router ;
+  

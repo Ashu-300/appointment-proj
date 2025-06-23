@@ -5,80 +5,96 @@ import SalonList from '../cutomerComponent/SalonList';
 import Footer from '../cutomerComponent/Footer';
 import { Link, useNavigate } from 'react-router-dom';
 
-
-
-
-
-
 const CustomerHome = () => {
-  const navigate = useNavigate()
-  const [salons, setsalons] = useState([]);
-  const [customer, setcustomer] = useState(null);
-  const [authError, setauthError] = useState(false); // For unauthorized access
-
-
-  
-
+  const navigate = useNavigate();
+  const [salons, setSalons] = useState([]);
+  const [customer, setCustomer] = useState(null);
+  const [authError, setAuthError] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const storedCustomer = localStorage.getItem('customerInfo');
     if (storedCustomer) {
-      setcustomer(JSON.parse(storedCustomer));
+      setCustomer(JSON.parse(storedCustomer));
     }
 
     const fetchSalons = async () => {
       try {
-        const token = (localStorage?.getItem('customerToken')) ;
-        
+        const customerToken = localStorage?.getItem('customerToken');
         const response = await axios.get('http://localhost:8080/customer', {
           headers: {
-            Authorization: `Bearer ${token}`
-          }
+            Authorization: `Bearer ${customerToken}`,
+          },
         });
-        setsalons(response.data);
+        setSalons(response.data);
       } catch (error) {
         console.error('Failed to fetch salons:', error.message);
         if (error.response && (error.response.status === 401 || error.response.status === 403)) {
-          setauthError(true);
+          setAuthError(true);
         }
+      } finally {
+        setLoading(false);
       }
     };
 
     fetchSalons();
   }, []);
 
- const opensalon = (salon) => {
-  navigate(`/customer/${salon.salonName}`, { state: { salon } });
-};
+  const openSalon = (salon) => {
+    navigate(`/customer/${salon.salonName}`, { state: { salon } });
+  };
 
   if (authError) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-gray-400 text-yellow-800 p-6 text-center">
-        <p className="text-lg font-semibold mb-4">You must be logged in to view salon listings.</p>
-        <Link to="/customer/login" className="text-black underline  text-base">
-          Go to Login Page
+      <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-red-200 to-red-400 text-white p-6 text-center">
+        <p className="text-xl font-semibold mb-4">🚫 You must be logged in to view salon listings.</p>
+        <Link
+          to="/customer/login"
+          className="bg-white text-red-600 px-6 py-2 rounded-full font-semibold shadow-md hover:bg-gray-100 transition"
+        >
+          🔑 Go to Login Page
         </Link>
+      </div>
+    );
+  }
 
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-100">
+        <div className="text-center">
+          <div className="loader mx-auto mb-4 border-4 border-gray-300 border-t-blue-500 rounded-full w-12 h-12 animate-spin"></div>
+          <p className="text-gray-600 font-medium">Loading salons near you...</p>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col bg-gray-50">
       <Header customer={customer} />
-      <main className=" h-full w-full flex flex-col p-6 bg-gray-50">
-        <h2 className="text-2xl font-bold mb-6 text-center ">Salons Near You</h2>
-        <div className=' h-full flex gap-6 flex-wrap p-3 justify-start ml-20  ' >
-          {salons.map((salon)=>(
-          <div className=' mt-4 mb-3   ml-5' key={salon._id}>
-            <button className=' h-[15rem] w-[25rem] ' 
-            onClick={()=>opensalon(salon)}>
-            <SalonList salon={salon} />
-            </button>
-          </div>
-        ))}
+
+      <main className="flex-grow w-full p-8">
+        <h2 className="text-3xl font-extrabold text-center text-blue-700 mb-10">
+          💇‍♀️ Explore Top Salons Near You
+        </h2>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 px-4 max-w-6xl mx-auto">
+          {salons.map((salon) => (
+            <div
+              key={salon._id}
+              className="transform hover:scale-105 transition-transform duration-300"
+            >
+              <button
+                onClick={() => openSalon(salon)}
+                className="w-full h-full bg-white rounded-2xl shadow-lg hover:shadow-xl overflow-hidden"
+              >
+                <SalonList salon={salon} />
+              </button>
+            </div>
+          ))}
         </div>
       </main>
+
       <Footer />
     </div>
   );

@@ -47,7 +47,6 @@ const CustomerLogIn = () => {
       const { token, customer } = res.data;
       
      
-      dispatch(login(customer));
 
       // ✅ Save token and customer info
       localStorage.setItem('customerToken', token);
