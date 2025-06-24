@@ -121,177 +121,154 @@ useEffect(() => {
   };
 
   return (
-    <>
+   // Inside your return statement
 
-    <Header customer={customer} />
-      <div className="p-8 bg-gray-100 min-h-screen">
-        <div className="max-w-4xl mx-auto bg-white shadow-lg rounded-lg p-6">
-          <h1 className="text-4xl font-bold text-indigo-700 mb-2">
-            {salon.salonName}
-          </h1>
-          <p className="text-gray-600 mb-1">
-            <strong>Owner:</strong> {salon.ownerName}
-          </p>
-          <p className="text-gray-600 mb-1">
-            <strong>Phone:</strong> {salon.phone}
-          </p>
-          <p className="text-gray-600 mb-4">
-            <strong>Address:</strong> {salon.address}
-          </p>
+<>
+  <Header customer={customer} />
+  <div className="p-8 bg-gradient-to-br from-gray-100 to-gray-200 min-h-screen">
+    <div className="max-w-5xl mx-auto bg-white shadow-xl rounded-xl p-8">
+      {/* Salon Info */}
+      <div className="mb-8">
+        <h1 className="text-4xl font-extrabold text-indigo-700 mb-2">{salon.salonName}</h1>
+        <p className="text-gray-700 mb-1">
+          <span className="font-medium">Owner:</span> {salon.ownerName}
+        </p>
+        <p className="text-gray-700 mb-1">
+          <span className="font-medium">Phone:</span> {salon.phone}
+        </p>
+        <p className="text-gray-700">
+          <span className="font-medium">Address:</span> {salon.address}
+        </p>
+      </div>
 
-          {/* Services */}
-          <h2 className="text-2xl font-semibold text-gray-800 mt-6 mb-4">
-            Available Services
-          </h2>
-          <div className="grid gap-4 grid-cols-1 md:grid-cols-2">
-            {salon.services.map((serv, index) => (
-              <div
+      {/* Services */}
+      <h2 className="text-2xl font-bold text-gray-800 mb-4">Available Services</h2>
+      <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 mb-10">
+        {salon.services.map((serv, index) => (
+          <div
+            key={index}
+            className="border rounded-lg p-5 bg-indigo-50 hover:shadow-md transition-shadow duration-300"
+          >
+            <h3 className="text-lg font-semibold text-gray-800 mb-1">{serv.serviceName}</h3>
+            <p className="text-gray-700 mb-3">Price: ₹{serv.price}</p>
+            <button
+              onClick={() => handleService(serv)}
+              className="w-full py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition duration-300 active:scale-95"
+            >
+              Add Service
+            </button>
+          </div>
+        ))}
+      </div>
+
+      {/* Booking Section */}
+      <h2 className="text-2xl font-bold text-gray-800 mb-4">Make Booking</h2>
+
+      {/* Selected Services */}
+      <div className="mb-6">
+        <h3 className="text-lg font-semibold text-gray-700 mb-2">Selected Services:</h3>
+        {selectedServices.length === 0 ? (
+          <p className="text-gray-500 italic">No services selected yet.</p>
+        ) : (
+          <ul className="space-y-2">
+            {selectedServices.map((service, index) => (
+              <li
                 key={index}
-                className="border rounded-lg p-4 shadow-md bg-gray-50"
+                className="flex justify-between items-center bg-gray-100 px-4 py-2 rounded-lg"
               >
-                <h3 className="text-xl font-medium">{serv.serviceName}</h3>
-                <p className="text-gray-600">Price: ₹{serv.price}</p>
+                <span className="text-gray-800">{service.serviceName}</span>
                 <button
-                  onClick={() => handleService(serv)}
-                  className="mt-3 px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700"
+                  onClick={() => handleDeleteService(service.serviceName)}
+                  className="text-red-500 hover:text-red-700 active:scale-95"
                 >
-                  ADD SERVICE
+                  <i className="ri-close-large-line text-xl"></i>
                 </button>
-              </div>
+              </li>
             ))}
+          </ul>
+        )}
+        {serviceError && <p className="text-red-600 text-sm mt-2">{serviceError}</p>}
+      </div>
+
+      {/* Time Slot Selection */}
+      <form
+        onSubmit={handleSubmit(handleBooking)}
+        className="bg-white border-t pt-6 mt-6 flex flex-col gap-4"
+      >
+        <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-end">
+          <div className="flex-1">
+            <label htmlFor="slots" className="block mb-1 font-medium text-gray-700">
+              Select Time Slot
+            </label>
+            <select
+              {...register("slots", { required: "Please select a slot" })}
+              id="slots"
+              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500"
+            >
+              <option value="">Choose a slot</option>
+              {generateTimeSlotsFromNow().map((slot, idx) => (
+                <option key={idx} value={slot.value}>
+                  {slot.label}
+                </option>
+              ))}
+            </select>
+            {errors.slots && (
+              <p className="text-red-600 text-sm mt-1">{errors.slots.message}</p>
+            )}
           </div>
 
-          {/* Make Booking */}
-          <div>
-            <h2 className="text-2xl font-semibold text-gray-800 mt-10 mb-4">
-              Make Booking
-            </h2>
+          <button
+            type="button"
+            onClick={() => {
+              const currentSlot = watch("slots");
+              if (currentSlot) {
+                setselectedSlots((prev) => [...prev, currentSlot]);
+              } else {
+                alert("Please select a slot first.");
+              }
+            }}
+            className="px-6 py-2 bg-gray-700 text-white rounded-md hover:bg-indigo-700 transition duration-300 active:scale-95"
+          >
+            Add Slot
+          </button>
+        </div>
 
-            {selectedServices.length === 0 ? (
-              <p className="text-gray-500 italic">No Services yet.</p>
-            ) : (
-              selectedServices.map((service, index) => (
-                <div key={index} className="flex flex-col w-[50%]">
-                  <li className="flex justify-between px-4 mb-2">
-                    <div>
-                      <strong>Service:</strong> {service.serviceName}
-                    </div>
-                    <div
-                      role="button"
-                      className="cursor-pointer text-red-500"
-                      onClick={() => handleDeleteService(service.serviceName)}
-                    >
-                      <i className="ri-close-large-line text-xl"></i>
-                    </div>
-                  </li>
-                </div>
-              ))
-            )}
-            {serviceError && (
-              <p className="text-red-600 text-sm mt-2">{serviceError}</p>
-            )}
-
-            {/* slect slot and make booking */}
-            <form className='flex flex-col justify-center gap-2' onSubmit={handleSubmit(handleBooking)}>
-              <div className="flex flex-col md:flex-row items-center  gap-4 bg-white p-6 rounded-lg shadow-md">
-            <div className="flex flex-col md:flex-row items-center  gap-3 w-full md:w-auto">
-              <label htmlFor="slots" className="text-gray-700 font-medium">
-                Select Multiple Time Slot
-              </label>
-              <select
-                {...register('slots', { required: 'Please select a slot' })}
-                id="slots"
-                className="w-full md:w-auto px-4 py-2 bg-white text-gray-700 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                >
-                <option value="">Choose a slot</option>
-                  {generateTimeSlotsFromNow().map((slot, idx) => (
-                    <option key={idx} value={slot.value}>
-                    {slot.label}
-                    </option>
-                  ))}                  
-              </select>
-              <button
-              type='button'
-              
-              onClick={() => {
-                const currentSlot = watch('slots');
-                if (currentSlot) {
-                  setselectedSlots(prev => [...prev, currentSlot]);
-                } else {
-                  alert('Please select a slot first.');
-                }
-              }}
-              className="px-6 py-2 bg-gray-600 text-white font-semibold rounded-lg hover:bg-indigo-700 transition duration-300"
-
-              >Add Slot</button>
-              {/* 👇 Show error if no slot selected */}
-                {errors.slots && (
-                  <p className="text-red-600 text-sm">{errors.slots.message}</p>
-                )}
-            </div>
-               
-                
-            </div>
-            <div>
-              <h3>Selected Slots:</h3>
-              <p>{selectedSlots !== 0 && (
-                <>
-                {selectedSlots.map((slot , index)=>(
-                  
-                  <li key={index}>
-                    {new Date(slot).toLocaleString('en-IN', {
-                      day: '2-digit',
-                      month: 'short',
-                      year: 'numeric',
-                      hour: '2-digit',
-                      minute: '2-digit',
-                      hour12: true
-                    })}
-                  </li>
-                ))}
-                </>
-              )}</p>
-            </div>
-             <button
-                  type='submit'
-                  className="px-6 py-2 bg-indigo-600 text-white font-semibold rounded-lg hover:bg-indigo-700 transition duration-300"
-                >
-                  Book
-                </button>
-            </form>
-          </div>
-
-          {/* Bookings List
-          <h2 className="text-2xl font-semibold text-gray-800 mt-10 mb-4">
-            Your Bookings
-          </h2>
-          {error && <p className="text-red-600">{error}</p>}
-          {bookings.length === 0 ? (
-            <p className="text-gray-500 italic">No bookings yet.</p>
+        {/* Selected Slots */}
+        <div>
+          <h3 className="text-lg font-semibold text-gray-700 mb-2">Selected Slots:</h3>
+          {selectedSlots.length === 0 ? (
+            <p className="text-gray-500 italic">No slots added yet.</p>
           ) : (
-            <ul className="divide-y divide-gray-200">
-              {bookings.map((booking, index) => (
-                <li key={index} className="py-4">
-                  <div className="text-gray-800 font-semibold">
-                    <strong>Service:</strong>{' '}
-                    {booking.services.map((serv, idx) => (
-                      <strong key={idx}>{serv.serviceName}, </strong>
-                    ))}
-                  </div>
-                  <p className="text-gray-700">
-                    <strong>Appointment:</strong>{' '}
-                    {new Date(booking.appointmentDate).toLocaleString()}
-                  </p>
-                  <p className="text-gray-600">
-                    <strong>Status:</strong> {booking.status}
-                  </p>
+            <ul className="list-disc ml-6 space-y-1 text-gray-800">
+              {selectedSlots.map((slot, index) => (
+                <li key={index}>
+                  {new Date(slot).toLocaleString("en-IN", {
+                    day: "2-digit",
+                    month: "short",
+                    year: "numeric",
+                    hour: "2-digit",
+                    minute: "2-digit",
+                    hour12: true,
+                  })}
                 </li>
               ))}
             </ul>
-          )} */}
+          )}
         </div>
-      </div>
-    </>
+
+        {/* Submit Booking */}
+        <button
+          type="submit"
+          className="self-start mt-4 px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition duration-300 active:scale-95"
+        >
+          Confirm Booking
+        </button>
+      </form>
+    </div>
+  </div>
+</>
+
+
   );
 };
 

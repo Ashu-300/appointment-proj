@@ -64,7 +64,7 @@ const SalonSignUp = () => {
     e.preventDefault();
 
     try {
-      const response = await axios.post(`${process.env.backend_url}/salon/signup/submit`, {
+      const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/salon/signup/submit`, {
         salonName: salonName,
         ownerName: ownerName,
         email: email,
@@ -207,7 +207,7 @@ const SalonSignUp = () => {
                     {filteredSuggestions.map((item, index) => (
                       <li
                         key={index}
-                        onClick={() => handleSelect(item.serviceName)}
+                        onMouseDown={() => handleSelect(item.serviceName)} 
                         className='px-4 py-2 hover:bg-blue-100 cursor-pointer'
                       >
                         {item.serviceName}

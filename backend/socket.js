@@ -66,7 +66,7 @@ async function initializeSocketIO(httpServer) {
           io.to(salonSocketId).emit('new_booking_notification', savedBooking);
 
             } else {
-                socket.emit('booking_status', {
+                socket.emit('booking_status', { 
                     status: false,
                     message: 'The salon is currently not online. Your booking has been saved and will be sent once the salon is back.'
                 });
