@@ -64,7 +64,7 @@ const SalonSignUp = () => {
     e.preventDefault();
 
     try {
-      const response = await axios.post(`http://localhost:8080/salon/signup/submit`, {
+      const response = await axios.post(`${process.env.backend_url}/salon/signup/submit`, {
         salonName: salonName,
         ownerName: ownerName,
         email: email,

@@ -43,12 +43,11 @@ const CustomerLogIn = () => {
 
     try {
       
-      const res = await axios.post('http://localhost:8080/customer/login/submit', credentials); // adjust endpoint if needed
+      const res = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/customer/login/submit`, credentials); 
       const { token, customer } = res.data;
       
      
 
-      // ✅ Save token and customer info
       localStorage.setItem('customerToken', token);
       localStorage.setItem('customerInfo', JSON.stringify(customer));
 

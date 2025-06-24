@@ -26,7 +26,7 @@ export default function SalonHomePage() {
       try{
        const token = (localStorage?.getItem('salonToken')) ;
         
-        const res = await axios.get('http://localhost:8080/salon', {
+        const res = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/salon`, {
           headers: {
             Authorization: `Bearer ${token}`
           }
@@ -55,7 +55,7 @@ export default function SalonHomePage() {
       <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-red-200 to-red-400 text-white p-6 text-center">
         <p className="text-xl font-semibold mb-4">🚫 You must be logged in to view salon listings.</p>
         <Link
-          to="/customer/login"
+          to="/salon/login"
           className="bg-white text-red-600 px-6 py-2 rounded-full font-semibold shadow-md hover:bg-gray-100 transition"
         >
           🔑 Go to Login Page

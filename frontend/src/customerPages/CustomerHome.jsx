@@ -21,7 +21,7 @@ const CustomerHome = () => {
     const fetchSalons = async () => {
       try {
         const customerToken = localStorage?.getItem('customerToken');
-        const response = await axios.get('http://localhost:8080/customer', {
+        const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/customer`, {
           headers: {
             Authorization: `Bearer ${customerToken}`,
           },
@@ -78,21 +78,22 @@ const CustomerHome = () => {
           💇‍♀️ Explore Top Salons Near You
         </h2>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 px-4 max-w-6xl mx-auto">
-          {salons.map((salon) => (
-            <div
-              key={salon._id}
-              className="transform hover:scale-105 transition-transform duration-300"
-            >
-              <button
-                onClick={() => openSalon(salon)}
-                className="w-full h-full bg-white rounded-2xl shadow-lg hover:shadow-xl overflow-hidden"
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 px-4 max-w-6xl mx-auto">
+            {salons.map((salon) => (
+              <div
+                key={salon._id}
+                className="h-full flex flex-col"
               >
-                <SalonList salon={salon} />
-              </button>
-            </div>
-          ))}
-        </div>
+                <button
+                  onClick={() => openSalon(salon)}
+                  className="h-full w-full bg-white rounded-2xl shadow-lg hover:shadow-xl overflow-hidden text-left"
+                >
+                  <SalonList salon={salon} />
+                </button>
+              </div>
+            ))}
+          </div>
+
       </main>
 
       <Footer />

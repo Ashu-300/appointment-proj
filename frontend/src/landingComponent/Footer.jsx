@@ -58,7 +58,7 @@ const Footer = () => {
           <div className="space-y-2">
            <button>
              <img
-              src="https://upload.wikimedia.org/wikipedia/commons/7/78/Google_Play_Store_badge_EN.svg"
+              src={import.meta.env.VITE_PHOTO_URL}
               alt="Play Store"
               className="h-10"
             />

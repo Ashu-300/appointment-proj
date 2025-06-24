@@ -17,6 +17,9 @@ const Header = ({ customer }) => {
   const dashboard = () => {
     navigate('/customer/dashboard');
   };
+  function profile (){
+    navigate('/customer/profile') ;
+  }
 
   return (
     <header className="bg-white shadow-md border-b sticky top-0 z-50">
@@ -29,9 +32,11 @@ const Header = ({ customer }) => {
         {/* Right side */}
         {customer && (
           <div className="flex flex-wrap items-center gap-3">
-            <span className="bg-blue-100 text-blue-700 px-4 py-1 rounded-full font-semibold text-sm">
+            <button
+            onClick={profile}
+             className="bg-blue-100 text-blue-700 px-4 py-1 rounded-full font-semibold text-sm">
               👤 {customer.name}
-            </span>
+            </button>
 
             <button
               onClick={dashboard}

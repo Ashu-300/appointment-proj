@@ -45,15 +45,11 @@ async function loginpage(req, res) {
     res.status(200).json({
       message: "Login successful",
       token, // ✅ plain token, frontend will attach "Bearer " prefix
-      customer: {
-        name: customer.name,
-        email: customer.email,
-        _id: customer._id  
-      }
+      customer
     });
 
   } catch (err) {
-    console.error("❌ Login error:", err.message);
+    console.error("❌ Login error:", err.message); 
     res.status(400).json({ message: "user error", error: err.message });
   }
 }
@@ -157,11 +153,25 @@ async function slots (req, res){
   }
 }
 
+async function info(req,res) {
+   try {
+    const customer = await Customer.findById(req.user._id);
+    if (!customer) {
+      return res.status(404).json({ message: 'Customer not found' });
+    }
+
+    res.json(customer);
+  } catch (err) {
+    console.error('Error fetching customer info:', err);
+    res.status(500).json({ message: 'Server error' });
+  }
+}
+
 module.exports = {
     signuppage,
     loginpage,
     getAllSalons,
     newBooking,
     myBooking,
-    slots
+    info ,
 }

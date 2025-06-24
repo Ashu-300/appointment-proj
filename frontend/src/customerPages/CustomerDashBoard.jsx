@@ -10,7 +10,7 @@ const CustomerDashboard = () => {
   const fetchConfirmedBookings = async () => {
     try {
       const token = localStorage.getItem('customerToken');
-      const res = await axios.get(`http://localhost:8080/customer/mybooking/${customer.email}`, {
+      const res = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/customer/mybooking/${customer.email}`, {
         headers: {
           Authorization: `Bearer ${token}`
         }

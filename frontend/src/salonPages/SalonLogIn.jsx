@@ -24,7 +24,7 @@ const SalonLogin = () => {
   const onSubmit = async (data) => {
     try {
       const response = await axios.post(
-        `http://localhost:8080/salon/login/submit`,
+        `${import.meta.env.VITE_BACKEND_URL}/salon/login/submit`,
         {
           email: data.email,
           password: data.password,

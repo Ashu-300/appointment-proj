@@ -47,10 +47,19 @@ async function initializeSocketIO(httpServer) {
             appointmentDate : slots[0],
             status : 'pending' ,
          })
-         const savedBooking = await newBooking.save();
+        const savedBooking = await newBooking.save();
+        await Customer.findByIdAndUpdate(
+            customer._id,
+            { $push: { bookings: savedBooking._id } },
+            { new: true }
+        );
+        await Salon.findByIdAndUpdate(
+            salon._id,
+            { $push: { bookings: savedBooking._id } },
+            { new: true }
+        );
 
-         
-            const salonSocketId = salonOwners[salonId];
+        const salonSocketId = salonOwners[salonId];
             
             
             if (salonSocketId) {  

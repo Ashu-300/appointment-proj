@@ -36,7 +36,7 @@ async function loginpage(req, res) {
 
     res.status(200).json({
       message: "Login successful",
-      token,
+      token, 
       salon: salon
     });
   } catch (err) {

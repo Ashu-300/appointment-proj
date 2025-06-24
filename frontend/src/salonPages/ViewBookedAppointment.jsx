@@ -19,7 +19,7 @@ export default function ViewBookedAppointment() {
 const salontoken = localStorage.getItem('salonToken') ;
   async function completeBooking(bookie){
     bookie.status = 'completed' ;
-    const response = await axios.put(`http://localhost:8080/salon/booking/complete/${bookie._id}` , bookie , {
+    const response = await axios.put(`${import.meta.env.VITE_BACKEND_URL}/salon/booking/complete/${bookie._id}` , bookie , {
       headers:{
          Authorization: `Bearer ${salontoken}` 
       }

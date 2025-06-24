@@ -7,7 +7,7 @@ import { useForm } from 'react-hook-form';
 import { io } from "socket.io-client";
 import Header from '../cutomerComponent/Header';
 
-const socket = io("http://localhost:8080", {
+const socket = io(`${import.meta.env.VITE_BACKEND_URL}`, {
   withCredentials: true,
 });
 
@@ -51,8 +51,8 @@ useEffect(() => {
     alert(message) ;
   })
   return () => {
-    socket.off('connect');
     socket.off('booking_confirmed');
+    socket.off('booking_decline');
   };
 }, []);
 

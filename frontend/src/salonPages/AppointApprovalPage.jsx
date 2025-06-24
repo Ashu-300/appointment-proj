@@ -62,7 +62,7 @@ export default function AppointApprovalPage() {
     const token = localStorage.getItem('salonToken');
 
     // ✅ Call API with correct booking ID
-    await axios.put(`http://localhost:8080/salon/booking/confirm/${booking._id}`, updatedBooking, {
+    await axios.put(`${import.meta.env.VITE_BACKEND_URL}/salon/booking/confirm/${booking._id}`, updatedBooking, {
       headers: {
         Authorization: `Bearer ${token}`,
       },

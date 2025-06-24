@@ -27,7 +27,7 @@ const CustomerSignUp = () => {
     setSuccess('');
 
     try {
-      const response = await axios.post('http://localhost:8080/customer/signup/submit', formData); // Adjust route accordingly
+      const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/customer/signup/submit`, formData); // Adjust route accordingly
      
       if(response.status === 201){
          setSuccess('Account created successfully!');

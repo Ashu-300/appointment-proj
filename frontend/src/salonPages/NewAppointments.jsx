@@ -24,7 +24,7 @@ export default function NewAppointments() {
   useEffect(() => {
   const fetchExistingBookings = async () => {
     try {
-      const response = await axios.get(`http://localhost:8080/salon/${salon.email}/allbooking` , {
+      const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/salon/${salon.email}/allbooking` , {
         headers : {
           Authorization: `Bearer ${salontoken}`
         }

@@ -40,7 +40,7 @@ useEffect(() => {
   const fetchCompletedAppointments = async () => {
     try {
       const completedBookings = await axios.get(
-        `http://localhost:8080/salon/${salonDetail.email}/completed`,
+        `${import.meta.env.VITE_BACKEND_URL}/salon/${salonDetail.email}/completed`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
